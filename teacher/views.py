@@ -10,7 +10,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.generic import ListView, DetailView, CreateView
 from django.core.exceptions import ObjectDoesNotExist
 #from django.contrib.auth.models import Group
-from teacher.models import Classroom
+from teacher.models import Classroom, Note
 from student.models import Enroll
 from account.models import Log, Message, MessagePoll, Profile
 from student.models import Enroll, Work, EnrollGroup, Assistant, Exam
@@ -1024,3 +1024,47 @@ def event_video_make(request):
             return JsonResponse({'status':'ok'}, safe=False)
     else:
             return JsonResponse({'status':'ko'}, safe=False)
+
+		
+# 新增教學筆記
+def note_add(request):
+    classroom_id = request.POST.get('classroomid')
+    lesson = request.POST.get('lesson')
+    memo = request.POST.get('memo')
+    user_id = request.POST.get('userid')
+    note_id = request.POST.get('noteid')
+    #lesson=1
+    #note_id = 0
+    #user_id = 1
+    #classroom_id=1
+    #memo = "test"
+    if note_id == 0 or note_id == "0" :
+        note = Note(classroom_id=classroom_id, user_id=user_id, lesson=lesson, memo=memo)
+        note.save()	
+    else : 
+        try: 
+            note = Note.objects.get(id=note_id)
+            note.memo = memo
+            note.save()
+        except:
+            pass
+    return JsonResponse({'status':'ok', 'note_id':note_id}, safe=False)
+
+# 新增教學筆記
+def note_get(request):
+    classroom_id = request.POST.get('classroomid')
+    lesson = request.POST.get('lesson')
+    user_id = request.POST.get('userid')
+    note_text = ""
+    classroom = Classroom.objects.get(id=classroom_id)
+    notes = Note.objects.filter(classroom_id=classroom_id, user_id=user_id, lesson=lesson).order_by('-id')
+    if notes.exists():
+        for note in notes:
+            note_text = note_text + str(localtime(note.publication_date).strftime("%Y-%m-%d %H:%M:%S"))
+            note_text = note_text + " <a href=javascript:note_add('" + classroom.name + "'," + classroom_id + "," + lesson + "," + str(note.id) + u")><img src='/static/images/icon_edit.png'>編輯筆記</a>" 
+            note_text = note_text + "<div class=note_content_" + str(note.id) + ">" + note.memo + "<BR></div>"
+        return JsonResponse({'status':'ok', 'note_text':note_text, 'classroom_id':classroom_id}, safe=False)
+    else :
+        notes = None
+        return JsonResponse({'status':'no_ok', 'note_text':note_text, 'classroom_id':user_id}, safe=False)
+                

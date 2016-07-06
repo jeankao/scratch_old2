@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django import forms
-from teacher.models import Classroom
+from teacher.models import Classroom, Note
 from student.models import Work, Enroll
 from account.models import Message
 
@@ -101,4 +101,6 @@ class AnnounceForm(forms.ModelForm):
             self.fields['title'].widget.attrs['size'] = 50
             self.fields['content'].label = "公告內容"
             self.fields['content'].widget.attrs['cols'] = 50
-            self.fields['content'].widget.attrs['rows'] = 20                      
+            self.fields['content'].widget.attrs['rows'] = 20        
+            
+  

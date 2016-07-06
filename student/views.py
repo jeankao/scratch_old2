@@ -10,7 +10,7 @@ from django.template import RequestContext
 from django.views.generic import ListView, CreateView
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import Group
-from teacher.models import Classroom
+from teacher.models import Classroom, Note
 from student.models import Enroll, EnrollGroup, Work, Assistant, Exam, Bug, Debug
 from account.models import Log, Message, MessagePoll, Profile, VisitorLog
 from certificate.models import Certificate
@@ -267,7 +267,9 @@ def lesson(request, lesson):
             # log = Log(user_id=request.user.id, event=u'課程內容<'+lesson+'>')
             #lo.save()
             # 改由 lesson_log 統一處理，含各課程之分頁 
-            return render_to_response('student/lesson.html', {'lesson':lesson}, context_instance=RequestContext(request))
+            classrooms = Classroom.objects.filter(teacher_id=request.user.id)
+            notes = Note.objects.filter(user_id=request.user.id, lesson = lesson).order_by('-id')
+            return render_to_response('student/lesson.html', {'lesson':lesson, 'notes':notes, 'classrooms':classrooms}, context_instance=RequestContext(request))
         
 # 上傳作業  
 def submit(request, index):
@@ -570,6 +572,10 @@ class RankListView(ListView):
 
 # 測驗卷
 def exam(request):
+    # 限登入者
+    if not request.user.is_authenticated():
+        return redirect("/account/login/")    
+    else :
         return render_to_response('student/exam.html', context_instance=RequestContext(request))
 
 # 測驗卷得分

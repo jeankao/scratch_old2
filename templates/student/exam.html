@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block title %} Exam {% endblock %}
+{% load tag %}
 {% block head_ext %}
   <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
   <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
@@ -80,7 +81,10 @@ $(function () {
     <li><a href="#tab2">測驗：選擇結構</a></li>		
     <li><a href="#tab3">測驗：重複結構</a></li>	
     <li><a href="#tab4">成績</a></li>		
-	</ul>
+    {% if request.user|has_group:"teacher" %} 	
+    <li><a href="#tabn">筆記</a></li>
+	{% endif %}		
+  </ul>
   <div class="clr"></div>
   <section class="block">
 	<article id="tab1">

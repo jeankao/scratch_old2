@@ -48,5 +48,9 @@ urlpatterns = [
     url(r'^event/excel/(?P<classroom_id>\d+)/$', views.event_excel),
     url(r'^event/make/$', views.event_make),    
     url(r'^event/video/make/$', views.event_video_make),
+    
+    #教學筆記
+    url(r'^note/add/$', views.note_add),  
+    url(r'^note/get/$', views.note_get),      
 	
 ]

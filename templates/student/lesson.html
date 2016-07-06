@@ -3,6 +3,43 @@
 {% load tag %}
 {% block head_ext %}
 <style class="cp-pen-styles">
+/* Style the list */
+ul.classtab {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid #ccc;
+    background-color: #f1f1f1;
+}
+
+/* Float the list items side by side */
+ul.classtab li {float: left;}
+
+/* Style the links inside the list items */
+ul.classtab li a {
+    display: inline-block;
+    color: black;
+    text-align: center;
+    padding: 12px 14px;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+/* Change background color of links on hover */
+ul.classtab li a:hover {background-color: #ddd;}
+
+/* Create an active/current tablink class */
+ul.classtab li a:focus, .active {background-color: #ccc;}
+
+/* Style the tab content */
+.tabcontent {
+    display: none;
+    padding: 6px 12px;
+    border: 1px solid #ccc;
+    border-top: none;
+}
+
 .wrapper {
   margin: auto;
   padding: 1em;
@@ -42,8 +79,51 @@ article {
   padding: 0 1em;
 }</style>
 <script src='//assets.codepen.io/assets/common/stopExecutionOnTimeout.js?t=1'></script>
+<script type="text/javascript" src="//cdn.ckeditor.com/4.5.9/standard-all/ckeditor.js"></script>
 <!-- <script src='/static/js/youtube.util.js'></script> -->
 <script>
+
+
+function openNote(evt, noteName) {
+    // Declare all variables
+    var i, tabcontent, tablinks;
+
+    // Get all elements with class="tabcontent" and hide them
+    tabcontent = document.getElementsByClassName("tabcontent");
+    for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+    }
+
+    // Get all elements with class="tablinks" and remove the class "active"
+    tablinks = document.getElementsByClassName("tablinks");
+    for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");
+    }
+
+    // Show the current tab, and add an "active" class to the link that opened the tab
+    document.getElementById(noteName).style.display = "block";
+    evt.currentTarget.className += " active";
+}
+
+function note_add(noteName, classroom_id, lesson, note_id) {
+    // Show the current tab, and add an "active" class to the link that opened the tab
+	memo = "id_"+noteName+"_memo";
+	if (note_id == 0) {
+	    $('input.note_submit').attr('data-noteid',0);	
+        document.getElementById(memo).value = "";
+	} else {
+	    $('input.note_submit').attr('data-noteid',note_id);
+		document.getElementById(memo).value = $("div.note_content_"+note_id).html();
+	}
+	var editor = CKEDITOR.instances[memo];
+    if (editor) { editor.destroy(true); }
+    CKEDITOR.replace(memo, {
+        extraPlugins: 'colorbutton,colordialog'
+    } );	
+    document.getElementById(noteName).style.display = "none";
+    document.getElementById(noteName+'_form').style.display = "block";
+}
+
 function lesson_log(tabname) {
     $.post('/student/lesson/log/{{lesson}}/',
         {'tabname': tabname},
@@ -139,7 +219,6 @@ function onPlayerStateChange(event) {
             lesson_log(activePlayer.tabName+" | PAUSE["+currTime+"]"); break;
     }
 }
-//# sourceURL=pen.js
 
 </script>
 {% endblock %}
@@ -154,13 +233,16 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}    
     <li><a href="#tab0">證書</a></li>
     {% endif %}
-    <li><a href="#tab2">影片：Scratch基本介紹</a></li>
+    <li><a href="#tab2">影片：基本介紹</a></li>
     <li><a href="#tab3">範例：綜合應用</a></li>
     <li><a href="#tab4">影片</a></li>
     <li><a href="#tab5">心智圖</a></li>
 	{% if user.is_authenticated %}
     <li><a href="#tab6">作業：綜合應用</a></li>
 	{% endif %}
+    {% if request.user|has_group:"teacher" %} 	
+    <li><a href="#tabn">筆記</a></li>
+	{% endif %}	
   </ul>
   <div class="clr"></div>
   <section class="block">
@@ -210,8 +292,7 @@ function onPlayerStateChange(event) {
     </article>	
 	<article id="tab6">
         <iframe width="900" height="720" src="/student/submit/1" frameborder="0" allowfullscreen></iframe>   
-    </article>
-</section>
+    </article>  
 <!--------------------------------------------------------------------------------------------------------------------------------------------------------------->
 {% elif lesson == "2" %}
 <section class="wrapper">
@@ -224,6 +305,9 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}
     <li><a href="#tab5">作業：第一個動畫</a></li>	
 	{% endif %}
+    {% if request.user|has_group:"teacher" %} 	
+    <li><a href="#tabn">筆記</a></li>
+	{% endif %}		
   </ul>
   <div class="clr"></div>
   <section class="block">
@@ -250,8 +334,8 @@ function onPlayerStateChange(event) {
     <article id="tab5">
         <iframe width="900" height="720" src="/student/submit/2" frameborder="0" allowfullscreen></iframe>   
     </article>
-  </section>
-</section>
+  
+
 <!--------------------------------------------------------------------------------------------------------------------------------------------------------------->
 {% elif lesson == "3" %}
 <section class="wrapper">
@@ -270,6 +354,9 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}	
     <li><a href="#tab9">作業：變大變小</a></li>    
 	{% endif %}
+    {% if request.user|has_group:"teacher" %} 	
+    <li><a href="#tabn">筆記</a></li>
+	{% endif %}		
   </ul>
   <div class="clr"></div>
   <section class="block">
@@ -313,8 +400,6 @@ function onPlayerStateChange(event) {
         <BR>
         <iframe width="900" height="720" src="/student/submit/4" frameborder="0" allowfullscreen></iframe>   
     </article>
-  </section>
-</section>
 <!--------------------------------------------------------------------------------------------------------------------------------------------------------------->
 {% elif lesson == "4" %}
 <section class="wrapper">
@@ -333,6 +418,9 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}    
     <li><a href="#tab9">作業：發球</a></li>    
 	{% endif %}
+    {% if request.user|has_group:"teacher" %} 	
+    <li><a href="#tabn">筆記</a></li>
+	{% endif %}		
   </ul>
   <div class="clr"></div>
   <section class="block">
@@ -376,8 +464,8 @@ function onPlayerStateChange(event) {
         <BR>
         <iframe width="900" height="720" src="/student/submit/6" frameborder="0" allowfullscreen></iframe>   
     </article>
-  </section>
-</section>
+  
+
 <!--------------------------------------------------------------------------------------------------------------------------------------------------------------->
 {% elif lesson == "5" %}
 <section class="wrapper">
@@ -396,6 +484,9 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}
     <li><a href="#tab9">作業：不斷發球</a></li>    
 	{% endif %}
+    {% if request.user|has_group:"teacher" %} 	
+    <li><a href="#tabn">筆記</a></li>
+	{% endif %}		
   </ul>
   <div class="clr"></div>
   <section class="block">
@@ -439,8 +530,8 @@ function onPlayerStateChange(event) {
         <BR>
         <iframe width="900" height="720" src="/student/submit/8" frameborder="0" allowfullscreen></iframe>   
     </article>
-  </section>
-</section>
+  
+
 <!--------------------------------------------------------------------------------------------------------------------------------------------------------------->
 {% elif lesson == "6" %}
 <section class="wrapper">
@@ -459,6 +550,9 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}  	
     <li><a href="#tab9">作業：開車</a></li>    
 	{% endif %}
+    {% if request.user|has_group:"teacher" %} 	
+    <li><a href="#tabn">筆記</a></li>
+	{% endif %}		
   </ul>
   <div class="clr"></div>
   <section class="block">
@@ -502,8 +596,8 @@ function onPlayerStateChange(event) {
         <BR>
         <iframe width="900" height="720" src="/student/submit/10" frameborder="0" allowfullscreen></iframe>   
     </article>
-  </section>
-</section>
+  
+
 <!--------------------------------------------------------------------------------------------------------------------------------------------------------------->
 {% elif lesson == "7" %}
 <section class="wrapper">
@@ -522,6 +616,9 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}    
     <li><a href="#tab9">作業：密碼檢查</a></li>   	
 	{% endif %}
+    {% if request.user|has_group:"teacher" %} 	
+    <li><a href="#tabn">筆記</a></li>
+	{% endif %}		
   </ul>
   <div class="clr"></div>
   <section class="block">
@@ -565,8 +662,8 @@ function onPlayerStateChange(event) {
         <BR>
         <iframe width="900" height="720" src="/student/submit/12" frameborder="0" allowfullscreen></iframe>   
     </article>
-  </section>
-</section>
+  
+
 <!--------------------------------------------------------------------------------------------------------------------------------------------------------------->
 {% elif lesson == "8" %}
 <section class="wrapper">
@@ -579,6 +676,9 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}	
     <li><a href="#tab5">作業：猴子吃香蕉</a></li>
 	{% endif %}
+    {% if request.user|has_group:"teacher" %} 	
+    <li><a href="#tabn">筆記</a></li>
+	{% endif %}		
   </ul>
   <div class="clr"></div>
   <section class="block">
@@ -604,8 +704,8 @@ function onPlayerStateChange(event) {
         <BR>
         <iframe width="900" height="720" src="/student/submit/13" frameborder="0" allowfullscreen></iframe>   
     </article>
-  </section>
-</section>
+  
+
 <!--------------------------------------------------------------------------------------------------------------------------------------------------------------->
 {% elif lesson == "9" %}
 <section class="wrapper">
@@ -617,6 +717,9 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}
     <li><a href="#tab4">作業：打魔鬼</a></li>
 	{% endif %}
+    {% if request.user|has_group:"teacher" %} 	
+    <li><a href="#tabn">筆記</a></li>
+	{% endif %}		
   </ul>
   <div class="clr"></div>
   <section class="block">
@@ -639,7 +742,7 @@ function onPlayerStateChange(event) {
         <iframe width="900" height="720" src="/student/submit/14" frameborder="0" allowfullscreen></iframe>   
     </article>
   </section
-</section>
+
 <!--------------------------------------------------------------------------------------------------------------------------------------------------------------->
 {% elif lesson == "10" %}
 <section class="wrapper">
@@ -652,6 +755,9 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}
     <li><a href="#tab5">作業：射蝙蝠</a></li>
  	{% endif %}
+    {% if request.user|has_group:"teacher" %} 	
+    <li><a href="#tabn">筆記</a></li>
+	{% endif %}	 	
  </ul>
   <div class="clr"></div>
   <section class="block">
@@ -677,8 +783,8 @@ function onPlayerStateChange(event) {
         <BR>
         <iframe width="900" height="720" src="/student/submit/15" frameborder="0" allowfullscreen></iframe>   
     </article>
-  </section>
-</section>
+  
+
 <!--------------------------------------------------------------------------------------------------------------------------------------------------------------->
 {% elif lesson == "11" %}
 <section class="wrapper">
@@ -697,6 +803,9 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}   	
     <li><a href="#tab9">作業：打磚塊</a></li>    
 	{% endif %}
+    {% if request.user|has_group:"teacher" %} 	
+    <li><a href="#tabn">筆記</a></li>
+	{% endif %}		
   </ul>
   <div class="clr"></div>
   <section class="block">
@@ -740,7 +849,7 @@ function onPlayerStateChange(event) {
         <BR>
         <iframe width="900" height="720" src="/student/submit/17" frameborder="0" allowfullscreen></iframe>   
     </article>
-</section>
+
 <!--------------------------------------------------------------------------------------------------------------------------------------------------------------->
 {% elif lesson == "A01" %}
 <section class="wrapper">
@@ -752,6 +861,10 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}	
     <li><a href="#tab3">作業：接雞蛋</a></li>
 	{% endif %}
+    {% if request.user|has_group:"teacher" %} 	
+    <li><a href="#tabn">筆記</a></li>
+	{% endif %}		
+  </ul>	
   <div class="clr"></div>
   <section class="block">
     <article id="tab4"> 
@@ -771,7 +884,7 @@ function onPlayerStateChange(event) {
         <BR>
         <iframe width="900" height="720" src="/student/submit/18" frameborder="0" allowfullscreen></iframe>   
     </article>        
-</section>
+
 <!--------------------------------------------------------------------------------------------------------------------------------------------------------------->
 {% elif lesson == "A02" %}
 <section class="wrapper">
@@ -783,6 +896,10 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}	
     <li><a href="#tab3">作業：電流急急棒</a></li>
  	{% endif %}
+    {% if request.user|has_group:"teacher" %} 	
+    <li><a href="#tabn">筆記</a></li>
+	{% endif %}		
+  </ul> 	
  <div class="clr"></div>
   <section class="block">
     <article id="tab4"> 
@@ -803,7 +920,7 @@ function onPlayerStateChange(event) {
         <BR>
         <iframe width="900" height="720" src="/student/submit/19" frameborder="0" allowfullscreen></iframe>   
     </article>        
-</section>
+
 <!--------------------------------------------------------------------------------------------------------------------------------------------------------------->
 {% elif lesson == "A03" %}
 <section class="wrapper">
@@ -815,6 +932,10 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %} 
 	<li><a href="#tab3">作業：打磚塊</a></li>
 	{% endif %}
+    {% if request.user|has_group:"teacher" %} 	
+    <li><a href="#tabn">筆記</a></li>
+	{% endif %}		
+  </ul>
   <div class="clr"></div>
   <section class="block">
     <article id="tab4"> 
@@ -835,7 +956,7 @@ function onPlayerStateChange(event) {
         <BR>
         <iframe width="900" height="720" src="/student/submit/20" frameborder="0" allowfullscreen></iframe>   
     </article>        
-</section>
+
 <!--------------------------------------------------------------------------------------------------------------------------------------------------------------->
 {% elif lesson == "A04" %}
 <section class="wrapper">
@@ -847,6 +968,10 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}
     <li><a href="#tab3">作業：打蟑螂</a></li>
 	{% endif %}
+    {% if request.user|has_group:"teacher" %} 	
+    <li><a href="#tabn">筆記</a></li>
+	{% endif %}		
+  </ul>	
   <div class="clr"></div>
   <section class="block">
     <article id="tab4"> 
@@ -867,7 +992,7 @@ function onPlayerStateChange(event) {
         <BR>
         <iframe width="900" height="720" src="/student/submit/21" frameborder="0" allowfullscreen></iframe>   
     </article>        
-</section>
+
 <!--------------------------------------------------------------------------------------------------------------------------------------------------------------->
 {% elif lesson == "A05" %}
 <section class="wrapper">
@@ -878,7 +1003,11 @@ function onPlayerStateChange(event) {
     <li><a href="#tab2">圖片下載</a></li>   
 	{% if user.is_authenticated %}
     <li><a href="#tab3">作業：猜數字</a></li>
- 	{% endif %}
+    {% endif %}
+    {% if request.user|has_group:"teacher" %} 	
+    <li><a href="#tabn">筆記</a></li>
+	{% endif %}		
+  </ul>    
  <div class="clr"></div>
   <section class="block">
     <article id="tab4"> 
@@ -899,7 +1028,7 @@ function onPlayerStateChange(event) {
         <BR>
         <iframe width="900" height="720" src="/student/submit/22" frameborder="0" allowfullscreen></iframe>   
     </article>        
-</section>
+
 <!--------------------------------------------------------------------------------------------------------------------------------------------------------------->
 {% elif lesson == "A06" %}
 <section class="wrapper">
@@ -911,6 +1040,10 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}
     <li><a href="#tab3">作業：射氣球</a></li>
 	{% endif %}
+    {% if request.user|has_group:"teacher" %} 	
+    <li><a href="#tabn">筆記</a></li>
+	{% endif %}		
+  </ul>	
   <div class="clr"></div>
   <section class="block">
     <article id="tab4"> 
@@ -931,7 +1064,7 @@ function onPlayerStateChange(event) {
         <BR>
         <iframe width="900" height="720" src="/student/submit/23" frameborder="0" allowfullscreen></iframe>   
     </article>        
-</section>
+
 <!--------------------------------------------------------------------------------------------------------------------------------------------------------------->
 {% elif lesson == "A07" %}
 <section class="wrapper">
@@ -943,6 +1076,10 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}
     <li><a href="#tab3">作業：猴子吃香蕉</a></li>
 	{% endif %}
+    {% if request.user|has_group:"teacher" %} 	
+    <li><a href="#tabn">筆記</a></li>
+	{% endif %}		
+  </ul>	
   <div class="clr"></div>
   <section class="block">
     <article id="tab4"> 
@@ -963,7 +1100,7 @@ function onPlayerStateChange(event) {
         <BR>
         <iframe width="900" height="720" src="/student/submit/24" frameborder="0" allowfullscreen></iframe>   
     </article>        
-</section>
+
 <!--------------------------------------------------------------------------------------------------------------------------------------------------------------->
 {% elif lesson == "A08" %}
 <section class="wrapper">
@@ -975,6 +1112,10 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}
     <li><a href="#tab4">作業：聖誕老公公送禮物</a></li>
 	{% endif %}
+    {% if request.user|has_group:"teacher" %} 	
+    <li><a href="#tabn">筆記</a></li>
+	{% endif %}		
+  </ul>	
   <div class="clr"></div>
   <section class="block">
     <article id="tab1"> 
@@ -1016,7 +1157,7 @@ function onPlayerStateChange(event) {
         <BR>
         <iframe width="900" height="720" src="/student/submit/25" frameborder="0" allowfullscreen></iframe>   
     </article>        
-</section>
+
 <!--------------------------------------------------------------------------------------------------------------------------------------------------------------->
 {% elif lesson == "B01" %}
 <section class="wrapper">
@@ -1028,6 +1169,10 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}
     <li><a href="#tab3">作業：小蜜蜂對抗戰</a></li>
 	{% endif %}
+    {% if request.user|has_group:"teacher" %} 	
+    <li><a href="#tabn">筆記</a></li>
+	{% endif %}		
+  </ul>	
   <div class="clr"></div>
   <section class="block">
     <article id="tab4"> 
@@ -1048,7 +1193,7 @@ function onPlayerStateChange(event) {
         <BR>
         <iframe width="900" height="720" src="/student/submit/26" frameborder="0" allowfullscreen></iframe>   
     </article>        
-</section>
+
 <!-------------------------------------------------------------------------------------------------------------------------------------------------------------->
 {% elif lesson == "B02" %}
 <section class="wrapper">
@@ -1060,6 +1205,10 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}
     <li><a href="#tab3">作業：貓貓大戰</a></li>
 	{% endif %}
+    {% if request.user|has_group:"teacher" %} 	
+    <li><a href="#tabn">筆記</a></li>
+	{% endif %}		
+  </ul>	
   <div class="clr"></div>
   <section class="block">
     <article id="tab4"> 
@@ -1080,7 +1229,7 @@ function onPlayerStateChange(event) {
         <BR>
         <iframe width="900" height="720" src="/student/submit/27" frameborder="0" allowfullscreen></iframe>   
     </article>        
-</section>
+
 <!-------------------------------------------------------------------------------------------------------------------------------------------------------------->
 {% elif lesson == "B03" %}
 <section class="wrapper">
@@ -1090,8 +1239,12 @@ function onPlayerStateChange(event) {
     <li><a href="#tab1">影片</a></li>
     <li><a href="#tab2">圖片下載</a></li>   
 	{% if user.is_authenticated %}
-    <li><a href="#tab3">作業：夾娃娃<</a></li>
+    <li><a href="#tab3">作業：夾娃娃</a></li>
  	{% endif %}
+    {% if request.user|has_group:"teacher" %} 	
+    <li><a href="#tabn">筆記</a></li>
+	{% endif %}		
+  </ul> 	
  <div class="clr"></div>
   <section class="block">
     <article id="tab4"> 
@@ -1112,7 +1265,7 @@ function onPlayerStateChange(event) {
         <BR>
         <iframe width="900" height="720" src="/student/submit/28" frameborder="0" allowfullscreen></iframe>   
     </article>        
-</section>
+
 <!-------------------------------------------------------------------------------------------------------------------------------------------------------------->
 {% elif lesson == "B04" %}
 <section class="wrapper">
@@ -1122,8 +1275,12 @@ function onPlayerStateChange(event) {
     <li><a href="#tab1">影片</a></li>
     <li><a href="#tab2">圖片下載</a></li>   
 	{% if user.is_authenticated %}
-    <li><a href="#tab3">作業：小章魚快快游<</a></li>
+    <li><a href="#tab3">作業：小章魚快快游</a></li>
  	{% endif %}
+    {% if request.user|has_group:"teacher" %} 	
+    <li><a href="#tabn">筆記</a></li>
+	{% endif %}		
+  </ul> 	
  <div class="clr"></div>
   <section class="block">
     <article id="tab4"> 
@@ -1144,7 +1301,7 @@ function onPlayerStateChange(event) {
         <BR>
         <iframe width="900" height="720" src="/student/submit/29" frameborder="0" allowfullscreen></iframe>   
     </article>        
-</section>
+
 <!-------------------------------------------------------------------------------------------------------------------------------------------------------------->
 {% elif lesson == "B05" %}
 <section class="wrapper">
@@ -1156,6 +1313,10 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}
     <li><a href="#tab3">作業：緊急救援</a></li>
 	{% endif %}
+    {% if request.user|has_group:"teacher" %} 	
+    <li><a href="#tabn">筆記</a></li>
+	{% endif %}		
+  </ul>	
   <div class="clr"></div>
   <section class="block">
     <article id="tab4"> 
@@ -1176,7 +1337,7 @@ function onPlayerStateChange(event) {
         <BR>
         <iframe width="900" height="720" src="/student/submit/30" frameborder="0" allowfullscreen></iframe>   
     </article>        
-</section>
+
 <!-------------------------------------------------------------------------------------------------------------------------------------------------------------->
 {% elif lesson == "B06" %}
 <section class="wrapper">
@@ -1186,8 +1347,12 @@ function onPlayerStateChange(event) {
     <li><a href="#tab1">影片</a></li>
     <li><a href="#tab2">圖片下載</a></li>   
 	{% if user.is_authenticated %}
-    <li><a href="#tab3">作業：大魚吃小魚<</a></li>
+    <li><a href="#tab3">作業：大魚吃小魚</a></li>
 	{% endif %}
+    {% if request.user|has_group:"teacher" %} 	
+    <li><a href="#tabn">筆記</a></li>
+	{% endif %}		
+  </ul>	
   <div class="clr"></div>
   <section class="block">
     <article id="tab4"> 
@@ -1208,7 +1373,7 @@ function onPlayerStateChange(event) {
         <BR>
         <iframe width="900" height="720" src="/student/submit/31" frameborder="0" allowfullscreen></iframe>   
     </article>        
-</section>
+
 <!-------------------------------------------------------------------------------------------------------------------------------------------------------------->
 {% elif lesson == "B07" %}
 <section class="wrapper">
@@ -1218,8 +1383,12 @@ function onPlayerStateChange(event) {
     <li><a href="#tab1">影片</a></li>
     <li><a href="#tab2">圖片下載</a></li>   
 	{% if user.is_authenticated %}
-    <li><a href="#tab3">作業：猜拳<</a></li>
+    <li><a href="#tab3">作業：猜拳</a></li>
 	{% endif %}
+    {% if request.user|has_group:"teacher" %} 	
+    <li><a href="#tabn">筆記</a></li>
+	{% endif %}		
+  </ul>	
   <div class="clr"></div>
   <section class="block">
      <article id="tab4"> 
@@ -1240,7 +1409,7 @@ function onPlayerStateChange(event) {
         <BR>
         <iframe width="900" height="720" src="/student/submit/32" frameborder="0" allowfullscreen></iframe>   
         </article>        
-</section>
+
 <!-------------------------------------------------------------------------------------------------------------------------------------------------------------->
 {% elif lesson == "B08" %}
 <section class="wrapper">
@@ -1252,6 +1421,10 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}
     <li><a href="#tab4">作業：搶救貓咪</a></li>
 	{% endif %}
+    {% if request.user|has_group:"teacher" %} 	
+    <li><a href="#tabn">筆記</a></li>
+	{% endif %}		
+  </ul>	
   <div class="clr"></div>
   <section class="block">
      <article id="tab1"> 
@@ -1281,7 +1454,7 @@ function onPlayerStateChange(event) {
         <BR>
         <iframe width="900" height="720" src="/student/submit/33" frameborder="0" allowfullscreen></iframe>   
     </article>        
-</section>
+
 <!-------------------------------------------------------------------------------------------------------------------------------------------------------------->
 {% elif lesson == "C01" %}
 <section class="wrapper">
@@ -1293,6 +1466,10 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}	
     <li><a href="#tab3">作業：跳遠</a></li>
 	{% endif %}
+    {% if request.user|has_group:"teacher" %} 	
+    <li><a href="#tabn">筆記</a></li>
+	{% endif %}		
+  </ul>	
   <div class="clr"></div>
   <section class="block">
     <article id="tab4"> 
@@ -1313,7 +1490,7 @@ function onPlayerStateChange(event) {
         <BR>
         <iframe width="900" height="720" src="/student/submit/34" frameborder="0" allowfullscreen></iframe>   
     </article>        
-</section>
+
 <!-------------------------------------------------------------------------------------------------------------------------------------------------------------->
 {% elif lesson == "C02" %}
 <section class="wrapper">
@@ -1325,6 +1502,10 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}	
     <li><a href="#tab3">作業：對對碰</a></li>
 	{% endif %}
+    {% if request.user|has_group:"teacher" %} 	
+    <li><a href="#tabn">筆記</a></li>
+	{% endif %}		
+  </ul>	
   <div class="clr"></div>
   <section class="block">
     <article id="tab4"> 
@@ -1345,7 +1526,7 @@ function onPlayerStateChange(event) {
         <BR>
         <iframe width="900" height="720" src="/student/submit/35" frameborder="0" allowfullscreen></iframe>   
     </article>        
-</section>
+
 <!-------------------------------------------------------------------------------------------------------------------------------------------------------------->
 {% elif lesson == "C03" %}
 <section class="wrapper">
@@ -1357,6 +1538,10 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}	
     <li><a href="#tab3">作業：水果盤</a></li>
 	{% endif %}
+    {% if request.user|has_group:"teacher" %} 	
+    <li><a href="#tabn">筆記</a></li>
+	{% endif %}		
+  </ul>	
   <div class="clr"></div>
   <section class="block">
     <article id="tab4"> 
@@ -1377,7 +1562,7 @@ function onPlayerStateChange(event) {
         <BR>
         <iframe width="900" height="720" src="/student/submit/36" frameborder="0" allowfullscreen></iframe>   
     </article>        
-</section>
+
 <!-------------------------------------------------------------------------------------------------------------------------------------------------------------->
 {% elif lesson == "C04" %}
 <section class="wrapper">
@@ -1389,6 +1574,10 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}	
     <li><a href="#tab3">作業：簡易接龍</a></li>
 	{% endif %}
+    {% if request.user|has_group:"teacher" %} 	
+    <li><a href="#tabn">筆記</a></li>
+	{% endif %}		
+  </ul>	
   <div class="clr"></div>
   <section class="block">
     <article id="tab4"> 
@@ -1409,7 +1598,7 @@ function onPlayerStateChange(event) {
         <BR>
         <iframe width="900" height="720" src="/student/submit/37" frameborder="0" allowfullscreen></iframe>   
     </article>        
-</section>
+
 <!-------------------------------------------------------------------------------------------------------------------------------------------------------------->
 {% elif lesson == "C05" %}
 <section class="wrapper">
@@ -1421,6 +1610,10 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}	
     <li><a href="#tab3">作業：星際大戰</a></li>
 	{% endif %}
+    {% if request.user|has_group:"teacher" %} 	
+    <li><a href="#tabn">筆記</a></li>
+	{% endif %}		
+  </ul>	
   <div class="clr"></div>
   <section class="block">
     <article id="tab4"> 
@@ -1441,7 +1634,7 @@ function onPlayerStateChange(event) {
         <BR>
         <iframe width="900" height="720" src="/student/submit/38" frameborder="0" allowfullscreen></iframe>   
     </article>        
-</section>
+
 <!-------------------------------------------------------------------------------------------------------------------------------------------------------------->
 {% elif lesson == "C06" %}
 <section class="wrapper">
@@ -1453,6 +1646,10 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}	
     <li><a href="#tab3">作業：貪食蛇</a></li>
 	{% endif %}
+    {% if request.user|has_group:"teacher" %} 	
+    <li><a href="#tabn">筆記</a></li>
+	{% endif %}		
+  </ul>	
   <div class="clr"></div>
   <section class="block">
     <article id="tab4"> 
@@ -1473,7 +1670,7 @@ function onPlayerStateChange(event) {
         <BR>
         <iframe width="900" height="720" src="/student/submit/39" frameborder="0" allowfullscreen></iframe>   
     </article>        
-</section>
+
 <!-------------------------------------------------------------------------------------------------------------------------------------------------------------->
 {% elif lesson == "C07" %}
 <section class="wrapper">
@@ -1485,6 +1682,10 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}	
     <li><a href="#tab3">作業：九宮拼圖</a></li>
 	{% endif %}
+    {% if request.user|has_group:"teacher" %} 	
+    <li><a href="#tabn">筆記</a></li>
+	{% endif %}		
+  </ul>	
   <div class="clr"></div>
   <section class="block">
     <article id="tab4"> 
@@ -1505,7 +1706,7 @@ function onPlayerStateChange(event) {
         <BR>
         <iframe width="900" height="720" src="/student/submit/40" frameborder="0" allowfullscreen></iframe>   
     </article>        
-</section>
+
 <!-------------------------------------------------------------------------------------------------------------------------------------------------------------->
 {% elif lesson == "C08" %}
 <section class="wrapper">
@@ -1517,6 +1718,10 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}	
     <li><a href="#tab4">作業：見縫插針</a></li>
 	{% endif %}
+    {% if request.user|has_group:"teacher" %} 	
+    <li><a href="#tabn">筆記</a></li>
+	{% endif %}		
+  </ul>	
   <div class="clr"></div>
   <section class="block">
     <article id="tab1"> 
@@ -1550,8 +1755,75 @@ function onPlayerStateChange(event) {
         <BR>
         <iframe width="900" height="720" src="/student/submit/41" frameborder="0" allowfullscreen></iframe>   
     </article>        
-</section>
 {% endif %}
+	<article id="tabn">
+<BR>
+<ul class="classtab">
+{% for classroom in classrooms %}
+  <li><a href="#" class="tablinks {% if forloop.counter == 1 %}active{% endif %}" onclick="openNote(event, '{{classroom.name}}')">{{classroom.name}}</a></li>
+{% endfor %}
+</ul>
+{% for classroom in classrooms %}
+<div id={{classroom.name}} class="tabcontent" {% if forloop.counter == 1 %}style="display: block;"{% else %}style="display: none;"{% endif %}>
+  <a href="javascript:note_add('{{classroom.name}}', {{classroom.id}},{{lesson}}, 0)"><img src="/static/images/icon_note.png"> 新增筆記</a><br><BR>
+        <div class={{classroom.name}}_note>
+        {% autoescape off %}
+        {% for note in notes %}{% if note.classroom_id == classroom.id %}
+        <div class="note_date">{{note.publication_date}}<a href="javascript:note_add('{{classroom.name}}', {{classroom.id}},{{lesson}}, {{note.id}})"><img src="/static/images/icon_edit.png"> 編輯筆記</a></div>
+        <div class="note_content_{{note.id}}">{{ note.memo }}</div>
+        {% endif %}{% endfor %}
+        {% endautoescape %}
+        </div>
+</div>        
+<div id={{classroom.name}}_form class="tabcontent">
+    <table>
+        <tr><th><label for="id_memo">筆記內容:</label></th><td><textarea cols="50" id="id_{{classroom.name}}_memo" rows="20"></textarea></td></tr>
+        <tr><td></td><td><input data-noteid=0 data-userid="{{request.user.id}}" data-classroomname="{{classroom.name}}" data-classroomid="{{classroom.id}}" data-lesson="{{lesson}}" class="note_submit" type="submit" value="送出"></td></tr>
+    </table>
+</div>
+{% endfor %}
+</article> 
+</section>
+</section> 
 {% endblock %}
+{% block domready %}
+	$('input.note_submit').click(function(e){
+	    alert($(this).data('noteid'));
+	    var classroomname = $(this).data('classroomname');
+		var classroomid = $(this).data('classroomid');
+		var lesson = $(this).data('lesson');
+		var userid = $(this).data('userid');
+		var noteid = $(this).data('noteid');
+        console.log('noteid = '+noteid);
+        console.log('userid = '+userid);
+        console.log('lesson = '+lesson);
+        console.log('classroomid = '+classroomid);
+        console.log('classroomname = '+classroomname);
+        CKEDITOR.instances['id_'+classroomname+'_memo'].updateElement();
+		var memo = document.getElementById("id_" + classroomname+ "_memo").value;
+		
+		$.post('/teacher/note/add/',
+			{
+				'classroomid' : classroomid,
+				'lesson' : lesson,
+				'memo': memo,
+				'userid': userid,
+				'noteid': noteid,
+			},
+			function(data){			
+		    $.post('/teacher/note/get/',
+			{
+				'classroomid' : classroomid,
+				'lesson' : lesson,
+				'userid' : userid,
+			},
+			function(data){
+                $('div.'+classroomname+'_note').html(data['note_text']);
+         });         
+      
+        document.getElementById(classroomname+"_form").style.display = "none";        
+		document.getElementById(classroomname).style.display = "block";			
 
-
+         });
+	});
+{% endblock %}
