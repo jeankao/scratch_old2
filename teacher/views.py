@@ -1062,7 +1062,7 @@ def note_get(request):
         for note in notes:
             note_text = note_text + str(localtime(note.publication_date).strftime("%Y-%m-%d %H:%M:%S"))
             note_text = note_text + " <a href=javascript:note_add('" + classroom.name + "'," + classroom_id + "," + lesson + "," + str(note.id) + u")><img src='/static/images/icon_edit.png'>編輯筆記</a>" 
-            note_text = note_text + "<div class=note_content_" + str(note.id) + ">" + note.memo + "<BR></div>"
+            note_text = note_text + "<div class=note_content_" + str(note.id) + ">" + note.memo + "</div>"
         return JsonResponse({'status':'ok', 'note_text':note_text, 'classroom_id':classroom_id}, safe=False)
     else :
         notes = None

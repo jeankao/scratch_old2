@@ -1767,12 +1767,14 @@ function onPlayerStateChange(event) {
 <div id={{classroom.name}} class="tabcontent" {% if forloop.counter == 1 %}style="display: block;"{% else %}style="display: none;"{% endif %}>
   <a href="javascript:note_add('{{classroom.name}}', {{classroom.id}},{{lesson}}, 0)"><img src="/static/images/icon_note.png"> 新增筆記</a><br><BR>
         <div class={{classroom.name}}_note>
-        {% autoescape off %}
-        {% for note in notes %}{% if note.classroom_id == classroom.id %}
-        <div class="note_date">{{note.publication_date}}<a href="javascript:note_add('{{classroom.name}}', {{classroom.id}},{{lesson}}, {{note.id}})"><img src="/static/images/icon_edit.png"> 編輯筆記</a></div>
-        <div class="note_content_{{note.id}}">{{ note.memo }}</div>
-        {% endif %}{% endfor %}
-        {% endautoescape %}
+        {% for note in notes %}{% spaceless %}
+            {% if note.classroom_id == classroom.id %}
+                <div class="note_item">
+                    <div class="note_date">{{note.publication_date}}<a href="javascript:note_add('{{classroom.name}}', {{classroom.id}},{{lesson}}, {{note.id}})"><img src="/static/images/icon_edit.png"> 編輯筆記</a></div>
+                    <div class="note_content_{{note.id}}">{{ note.memo|safe }}</div>
+                </div>
+            {% endif %}
+        {% endspaceless %}{% endfor %}
         </div>
 </div>        
 <div id={{classroom.name}}_form class="tabcontent">
@@ -1788,12 +1790,11 @@ function onPlayerStateChange(event) {
 {% endblock %}
 {% block domready %}
 	$('input.note_submit').click(function(e){
-	    alert($(this).data('noteid'));
 	    var classroomname = $(this).data('classroomname');
 		var classroomid = $(this).data('classroomid');
 		var lesson = $(this).data('lesson');
 		var userid = $(this).data('userid');
-		var noteid = $(this).data('noteid');
+		var noteid = $(this).attr('data-noteid');
         console.log('noteid = '+noteid);
         console.log('userid = '+userid);
         console.log('lesson = '+lesson);
@@ -1801,7 +1802,6 @@ function onPlayerStateChange(event) {
         console.log('classroomname = '+classroomname);
         CKEDITOR.instances['id_'+classroomname+'_memo'].updateElement();
 		var memo = document.getElementById("id_" + classroomname+ "_memo").value;
-		
 		$.post('/teacher/note/add/',
 			{
 				'classroomid' : classroomid,
@@ -1811,19 +1811,19 @@ function onPlayerStateChange(event) {
 				'noteid': noteid,
 			},
 			function(data){			
-		    $.post('/teacher/note/get/',
-			{
-				'classroomid' : classroomid,
-				'lesson' : lesson,
-				'userid' : userid,
-			},
-			function(data){
-                $('div.'+classroomname+'_note').html(data['note_text']);
-         });         
-      
-        document.getElementById(classroomname+"_form").style.display = "none";        
-		document.getElementById(classroomname).style.display = "block";			
-
-         });
+                $.post('/teacher/note/get/',
+                    {
+                        'classroomid' : classroomid,
+                        'lesson' : lesson,
+                        'userid' : userid,
+                    },
+                    function(data){
+                        $('div.'+classroomname+'_note').html(data['note_text']);
+                    }
+                );         
+                document.getElementById(classroomname+"_form").style.display = "none";        
+                document.getElementById(classroomname).style.display = "block";			
+            }
+        );
 	});
 {% endblock %}
