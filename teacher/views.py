@@ -10,9 +10,9 @@ from django.contrib.auth.decorators import login_required
 from django.views.generic import ListView, DetailView, CreateView
 from django.core.exceptions import ObjectDoesNotExist
 #from django.contrib.auth.models import Group
-from teacher.models import Classroom, Note
+from teacher.models import Classroom
 from student.models import Enroll
-from account.models import Log, Message, MessagePoll, Profile
+from account.models import Log, Message, MessagePoll, Profile, Note
 from student.models import Enroll, Work, EnrollGroup, Assistant, Exam
 from .forms import ClassroomForm, ScoreForm,  CheckForm1, CheckForm2, CheckForm3, CheckForm4, AnnounceForm
 #from django.views.generic.edit import ModelFormMixin
@@ -841,7 +841,7 @@ class AnnounceListView(ListView):
     def get_queryset(self):
 
         # 記錄系統事件
-        if is_event_open() :    
+        if is_event_open(self.request) :    
             log = Log(user_id=self.request.user.id, event='查看班級公告')
             log.save()        
         queryset = Message.objects.filter(classroom_id=self.kwargs['classroom_id'], author_id=self.request.user.id).order_by("-id")
@@ -909,8 +909,8 @@ def announce_detail(request, message_id):
         return custom[0]	
     announce_reads = sorted(announce_reads, key=getKey)
     
-    if is_event_open(self.request) :            
-        log = Log(user_id=self.request.user.id, event=u'查看公告<'+message.title+'>')
+    if is_event_open(request) :            
+        log = Log(user_id=request.user.id, event=u'查看公告<'+message.title+'>')
         log.save()  
     return render_to_response('teacher/announce_detail.html', {'message':message, 'classroom':classroom, 'announce_reads':announce_reads}, context_instance=RequestContext(request))
 
@@ -957,7 +957,7 @@ class EventListView(ListView):
 def clear(request, classroom_id):
     Log.objects.all().delete()
     # 記錄系統事件
-    if is_event_open() :       
+    if is_event_open(request) :       
         log = Log(user_id=request.user.id, event=u'清除所有事件')
         log.save()            
     return redirect("/account/event/0")
@@ -1026,45 +1026,28 @@ def event_video_make(request):
             return JsonResponse({'status':'ko'}, safe=False)
 
 		
-# 新增教學筆記
-def note_add(request):
-    classroom_id = request.POST.get('classroomid')
-    lesson = request.POST.get('lesson')
-    memo = request.POST.get('memo')
-    user_id = request.POST.get('userid')
-    note_id = request.POST.get('noteid')
-    #lesson=1
-    #note_id = 0
-    #user_id = 1
-    #classroom_id=1
-    #memo = "test"
-    if note_id == 0 or note_id == "0" :
-        note = Note(classroom_id=classroom_id, user_id=user_id, lesson=lesson, memo=memo)
-        note.save()	
-    else : 
-        try: 
-            note = Note.objects.get(id=note_id)
-            note.memo = memo
-            note.save()
-        except:
-            pass
-    return JsonResponse({'status':'ok', 'note_id':note_id}, safe=False)
+# 列出所有公告
+class NoteListView(ListView):
+    model = Note
+    context_object_name = 'notes'
+    template_name = 'teacher/note.html'    
+    paginate_by = 20
+    def get_queryset(self):
 
-# 新增教學筆記
-def note_get(request):
-    classroom_id = request.POST.get('classroomid')
-    lesson = request.POST.get('lesson')
-    user_id = request.POST.get('userid')
-    note_text = ""
-    classroom = Classroom.objects.get(id=classroom_id)
-    notes = Note.objects.filter(classroom_id=classroom_id, user_id=user_id, lesson=lesson).order_by('-id')
-    if notes.exists():
-        for note in notes:
-            note_text = note_text + str(localtime(note.publication_date).strftime("%Y-%m-%d %H:%M:%S"))
-            note_text = note_text + " <a href=javascript:note_add('" + classroom.name + "'," + classroom_id + "," + lesson + "," + str(note.id) + u")><img src='/static/images/icon_edit.png'>編輯筆記</a>" 
-            note_text = note_text + "<div class=note_content_" + str(note.id) + ">" + note.memo + "</div>"
-        return JsonResponse({'status':'ok', 'note_text':note_text, 'classroom_id':classroom_id}, safe=False)
-    else :
-        notes = None
-        return JsonResponse({'status':'no_ok', 'note_text':note_text, 'classroom_id':user_id}, safe=False)
-                
+        # 記錄系統事件
+        if is_event_open(self.request) :    
+            log = Log(user_id=self.request.user.id, event='查看班級筆記')
+            log.save()        
+        queryset = Note.objects.filter(classroom_id=self.kwargs['classroom_id'], user_id=self.request.user.id).order_by("-id")
+        return queryset
+        
+    def get_context_data(self, **kwargs):
+        context = super(NoteListView, self).get_context_data(**kwargs)
+        context['classroom'] = Classroom.objects.get(id=self.kwargs['classroom_id'])
+        return context	    
+
+    # 限本班任課教師        
+    def render_to_response(self, context):
+        if not is_teacher(self.request.user, self.kwargs['classroom_id']):
+            return redirect('/')
+        return super(NoteListView, self).render_to_response(context)        

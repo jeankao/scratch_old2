@@ -57,4 +57,8 @@ urlpatterns = [
 	
 	#作品編號
 	url(r'^work_help/$', views.work_help), 
+	
+	#學習筆記
+	url(r'^note/$', views.NoteListView.as_view(), name='note'), 
+		
 ]

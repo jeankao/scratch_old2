@@ -58,5 +58,9 @@ urlpatterns = [
     #系統事件記錄
     url(r'^event/(?P<user_id>\d+)/$', views.EventListView.as_view()),
     url(r'^event/admin/$', views.EventAdminListView.as_view()),
-    url(r'^event/admin/classroom/(?P<classroom_id>\d+)/$', views.EventAdminClassroomListView.as_view()),    
+    url(r'^event/admin/classroom/(?P<classroom_id>\d+)/$', views.EventAdminClassroomListView.as_view()),
+    
+    #筆記
+    url(r'^note/add/$', views.note_add),  
+    url(r'^note/get/$', views.note_get),  
 ]

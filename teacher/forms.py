@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django import forms
-from teacher.models import Classroom, Note
+from teacher.models import Classroom
 from student.models import Work, Enroll
 from account.models import Message
 

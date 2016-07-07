@@ -9,6 +9,7 @@ sudo apt-get install python-pip
 pip install django==1.9.2
 sudo apt-get install python-pip python-dev libpq-dev postgresql postgresql-contrib nginx
 sudo pip install XlsxWriter
+sudo pip install python-docx
 sudo apt-get install libjpeg-dev
 sudo pip install Pillow
 sudo apt-get build-dep python-psycopg2
@@ -20,7 +21,7 @@ sudo pip install dj-static
 <h1>Step1:下載專案</h1>
 <pre>
 cd /var/www
-git clone http://github.com/jeankao/scratch
+git clone http://github.com/
 </pre>
 <BR>
 <h1>Step2:設定資料庫</h1>
@@ -64,7 +65,7 @@ stop on runlevel [06]
 respawn
 env UWSGI=/usr/local/bin/uwsgi
 env LOGTO=/var/log/uwsgi.log
-exec $UWSGI --master --emperor /etc/uwsgi/scratch --die-on-term --uid www-data --gid www-data --logto $LOG$
+exec $UWSGI --master --emperor /etc/uwsgi/sites --die-on-term --uid www-data --gid www-data --logto $LOG$
 ------------------------------------End
 sudo nano /etc/nginx/sites-available/scratch
 ------------------------------------Start

@@ -31,15 +31,5 @@ class Classroom(models.Model):
     def __unicode__(self):
         return self.name
         
-class Note(models.Model):
-    user_id = models.IntegerField(default=0) 
-    classroom_id = models.IntegerField(default=0)
-    lesson = models.CharField(max_length=5)
-    memo = models.TextField()
-    publication_date = models.DateTimeField(default=timezone.now)
  
-    def __unicode__(self):
-        user = User.objects.filter(id=self.user_id)[0]
-        classroom_id = self.classroom_id
-        return user.first_name+"("+str(classroom_id)+")<"+self.lesson+'>'
    

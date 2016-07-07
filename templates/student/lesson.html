@@ -130,6 +130,8 @@ function lesson_log(tabname) {
         function(data){}
     );
 }
+
+
 var playerPool = [];
 var tabName = [];
 var activePlayer = null;
@@ -240,9 +242,7 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}
     <li><a href="#tab6">作業：綜合應用</a></li>
 	{% endif %}
-    {% if request.user|has_group:"teacher" %} 	
     <li><a href="#tabn">筆記</a></li>
-	{% endif %}	
   </ul>
   <div class="clr"></div>
   <section class="block">
@@ -305,9 +305,7 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}
     <li><a href="#tab5">作業：第一個動畫</a></li>	
 	{% endif %}
-    {% if request.user|has_group:"teacher" %} 	
     <li><a href="#tabn">筆記</a></li>
-	{% endif %}		
   </ul>
   <div class="clr"></div>
   <section class="block">
@@ -354,9 +352,9 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}	
     <li><a href="#tab9">作業：變大變小</a></li>    
 	{% endif %}
-    {% if request.user|has_group:"teacher" %} 	
+
     <li><a href="#tabn">筆記</a></li>
-	{% endif %}		
+	
   </ul>
   <div class="clr"></div>
   <section class="block">
@@ -418,9 +416,9 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}    
     <li><a href="#tab9">作業：發球</a></li>    
 	{% endif %}
-    {% if request.user|has_group:"teacher" %} 	
+
     <li><a href="#tabn">筆記</a></li>
-	{% endif %}		
+	
   </ul>
   <div class="clr"></div>
   <section class="block">
@@ -484,9 +482,9 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}
     <li><a href="#tab9">作業：不斷發球</a></li>    
 	{% endif %}
-    {% if request.user|has_group:"teacher" %} 	
+
     <li><a href="#tabn">筆記</a></li>
-	{% endif %}		
+	
   </ul>
   <div class="clr"></div>
   <section class="block">
@@ -550,9 +548,9 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}  	
     <li><a href="#tab9">作業：開車</a></li>    
 	{% endif %}
-    {% if request.user|has_group:"teacher" %} 	
+
     <li><a href="#tabn">筆記</a></li>
-	{% endif %}		
+	
   </ul>
   <div class="clr"></div>
   <section class="block">
@@ -616,9 +614,9 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}    
     <li><a href="#tab9">作業：密碼檢查</a></li>   	
 	{% endif %}
-    {% if request.user|has_group:"teacher" %} 	
+
     <li><a href="#tabn">筆記</a></li>
-	{% endif %}		
+	
   </ul>
   <div class="clr"></div>
   <section class="block">
@@ -676,9 +674,9 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}	
     <li><a href="#tab5">作業：猴子吃香蕉</a></li>
 	{% endif %}
-    {% if request.user|has_group:"teacher" %} 	
+
     <li><a href="#tabn">筆記</a></li>
-	{% endif %}		
+	
   </ul>
   <div class="clr"></div>
   <section class="block">
@@ -717,9 +715,9 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}
     <li><a href="#tab4">作業：打魔鬼</a></li>
 	{% endif %}
-    {% if request.user|has_group:"teacher" %} 	
+
     <li><a href="#tabn">筆記</a></li>
-	{% endif %}		
+	
   </ul>
   <div class="clr"></div>
   <section class="block">
@@ -755,9 +753,9 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}
     <li><a href="#tab5">作業：射蝙蝠</a></li>
  	{% endif %}
-    {% if request.user|has_group:"teacher" %} 	
+
     <li><a href="#tabn">筆記</a></li>
-	{% endif %}	 	
+ 	
  </ul>
   <div class="clr"></div>
   <section class="block">
@@ -803,9 +801,9 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}   	
     <li><a href="#tab9">作業：打磚塊</a></li>    
 	{% endif %}
-    {% if request.user|has_group:"teacher" %} 	
+
     <li><a href="#tabn">筆記</a></li>
-	{% endif %}		
+	
   </ul>
   <div class="clr"></div>
   <section class="block">
@@ -861,9 +859,9 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}	
     <li><a href="#tab3">作業：接雞蛋</a></li>
 	{% endif %}
-    {% if request.user|has_group:"teacher" %} 	
+
     <li><a href="#tabn">筆記</a></li>
-	{% endif %}		
+	
   </ul>	
   <div class="clr"></div>
   <section class="block">
@@ -896,9 +894,9 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}	
     <li><a href="#tab3">作業：電流急急棒</a></li>
  	{% endif %}
-    {% if request.user|has_group:"teacher" %} 	
+
     <li><a href="#tabn">筆記</a></li>
-	{% endif %}		
+	
   </ul> 	
  <div class="clr"></div>
   <section class="block">
@@ -932,9 +930,9 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %} 
 	<li><a href="#tab3">作業：打磚塊</a></li>
 	{% endif %}
-    {% if request.user|has_group:"teacher" %} 	
+
     <li><a href="#tabn">筆記</a></li>
-	{% endif %}		
+	
   </ul>
   <div class="clr"></div>
   <section class="block">
@@ -968,9 +966,9 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}
     <li><a href="#tab3">作業：打蟑螂</a></li>
 	{% endif %}
-    {% if request.user|has_group:"teacher" %} 	
+
     <li><a href="#tabn">筆記</a></li>
-	{% endif %}		
+	
   </ul>	
   <div class="clr"></div>
   <section class="block">
@@ -1004,9 +1002,9 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}
     <li><a href="#tab3">作業：猜數字</a></li>
     {% endif %}
-    {% if request.user|has_group:"teacher" %} 	
+
     <li><a href="#tabn">筆記</a></li>
-	{% endif %}		
+	
   </ul>    
  <div class="clr"></div>
   <section class="block">
@@ -1040,9 +1038,9 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}
     <li><a href="#tab3">作業：射氣球</a></li>
 	{% endif %}
-    {% if request.user|has_group:"teacher" %} 	
+
     <li><a href="#tabn">筆記</a></li>
-	{% endif %}		
+	
   </ul>	
   <div class="clr"></div>
   <section class="block">
@@ -1076,9 +1074,9 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}
     <li><a href="#tab3">作業：猴子吃香蕉</a></li>
 	{% endif %}
-    {% if request.user|has_group:"teacher" %} 	
+
     <li><a href="#tabn">筆記</a></li>
-	{% endif %}		
+	
   </ul>	
   <div class="clr"></div>
   <section class="block">
@@ -1112,9 +1110,9 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}
     <li><a href="#tab4">作業：聖誕老公公送禮物</a></li>
 	{% endif %}
-    {% if request.user|has_group:"teacher" %} 	
+
     <li><a href="#tabn">筆記</a></li>
-	{% endif %}		
+	
   </ul>	
   <div class="clr"></div>
   <section class="block">
@@ -1169,9 +1167,9 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}
     <li><a href="#tab3">作業：小蜜蜂對抗戰</a></li>
 	{% endif %}
-    {% if request.user|has_group:"teacher" %} 	
+
     <li><a href="#tabn">筆記</a></li>
-	{% endif %}		
+	
   </ul>	
   <div class="clr"></div>
   <section class="block">
@@ -1205,9 +1203,9 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}
     <li><a href="#tab3">作業：貓貓大戰</a></li>
 	{% endif %}
-    {% if request.user|has_group:"teacher" %} 	
+
     <li><a href="#tabn">筆記</a></li>
-	{% endif %}		
+	
   </ul>	
   <div class="clr"></div>
   <section class="block">
@@ -1241,9 +1239,9 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}
     <li><a href="#tab3">作業：夾娃娃</a></li>
  	{% endif %}
-    {% if request.user|has_group:"teacher" %} 	
+
     <li><a href="#tabn">筆記</a></li>
-	{% endif %}		
+	
   </ul> 	
  <div class="clr"></div>
   <section class="block">
@@ -1277,9 +1275,9 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}
     <li><a href="#tab3">作業：小章魚快快游</a></li>
  	{% endif %}
-    {% if request.user|has_group:"teacher" %} 	
+
     <li><a href="#tabn">筆記</a></li>
-	{% endif %}		
+	
   </ul> 	
  <div class="clr"></div>
   <section class="block">
@@ -1313,9 +1311,9 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}
     <li><a href="#tab3">作業：緊急救援</a></li>
 	{% endif %}
-    {% if request.user|has_group:"teacher" %} 	
+
     <li><a href="#tabn">筆記</a></li>
-	{% endif %}		
+	
   </ul>	
   <div class="clr"></div>
   <section class="block">
@@ -1349,9 +1347,9 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}
     <li><a href="#tab3">作業：大魚吃小魚</a></li>
 	{% endif %}
-    {% if request.user|has_group:"teacher" %} 	
+
     <li><a href="#tabn">筆記</a></li>
-	{% endif %}		
+	
   </ul>	
   <div class="clr"></div>
   <section class="block">
@@ -1385,9 +1383,9 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}
     <li><a href="#tab3">作業：猜拳</a></li>
 	{% endif %}
-    {% if request.user|has_group:"teacher" %} 	
+
     <li><a href="#tabn">筆記</a></li>
-	{% endif %}		
+	
   </ul>	
   <div class="clr"></div>
   <section class="block">
@@ -1421,9 +1419,9 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}
     <li><a href="#tab4">作業：搶救貓咪</a></li>
 	{% endif %}
-    {% if request.user|has_group:"teacher" %} 	
+
     <li><a href="#tabn">筆記</a></li>
-	{% endif %}		
+	
   </ul>	
   <div class="clr"></div>
   <section class="block">
@@ -1466,9 +1464,9 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}	
     <li><a href="#tab3">作業：跳遠</a></li>
 	{% endif %}
-    {% if request.user|has_group:"teacher" %} 	
+
     <li><a href="#tabn">筆記</a></li>
-	{% endif %}		
+	
   </ul>	
   <div class="clr"></div>
   <section class="block">
@@ -1502,9 +1500,9 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}	
     <li><a href="#tab3">作業：對對碰</a></li>
 	{% endif %}
-    {% if request.user|has_group:"teacher" %} 	
+
     <li><a href="#tabn">筆記</a></li>
-	{% endif %}		
+	
   </ul>	
   <div class="clr"></div>
   <section class="block">
@@ -1538,9 +1536,9 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}	
     <li><a href="#tab3">作業：水果盤</a></li>
 	{% endif %}
-    {% if request.user|has_group:"teacher" %} 	
+
     <li><a href="#tabn">筆記</a></li>
-	{% endif %}		
+	
   </ul>	
   <div class="clr"></div>
   <section class="block">
@@ -1574,9 +1572,9 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}	
     <li><a href="#tab3">作業：簡易接龍</a></li>
 	{% endif %}
-    {% if request.user|has_group:"teacher" %} 	
+
     <li><a href="#tabn">筆記</a></li>
-	{% endif %}		
+	
   </ul>	
   <div class="clr"></div>
   <section class="block">
@@ -1610,9 +1608,9 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}	
     <li><a href="#tab3">作業：星際大戰</a></li>
 	{% endif %}
-    {% if request.user|has_group:"teacher" %} 	
+
     <li><a href="#tabn">筆記</a></li>
-	{% endif %}		
+	
   </ul>	
   <div class="clr"></div>
   <section class="block">
@@ -1646,9 +1644,9 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}	
     <li><a href="#tab3">作業：貪食蛇</a></li>
 	{% endif %}
-    {% if request.user|has_group:"teacher" %} 	
+
     <li><a href="#tabn">筆記</a></li>
-	{% endif %}		
+	
   </ul>	
   <div class="clr"></div>
   <section class="block">
@@ -1682,9 +1680,9 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}	
     <li><a href="#tab3">作業：九宮拼圖</a></li>
 	{% endif %}
-    {% if request.user|has_group:"teacher" %} 	
+
     <li><a href="#tabn">筆記</a></li>
-	{% endif %}		
+	
   </ul>	
   <div class="clr"></div>
   <section class="block">
@@ -1718,9 +1716,9 @@ function onPlayerStateChange(event) {
 	{% if user.is_authenticated %}	
     <li><a href="#tab4">作業：見縫插針</a></li>
 	{% endif %}
-    {% if request.user|has_group:"teacher" %} 	
+
     <li><a href="#tabn">筆記</a></li>
-	{% endif %}		
+	
   </ul>	
   <div class="clr"></div>
   <section class="block">
@@ -1759,18 +1757,40 @@ function onPlayerStateChange(event) {
 	<article id="tabn">
 <BR>
 <ul class="classtab">
+  <li><a href="#Tabn" class="tablinks active" onclick="openNote(event, 'MyNote')">我的學習筆記</a></li>
 {% for classroom in classrooms %}
-  <li><a href="#" class="tablinks {% if forloop.counter == 1 %}active{% endif %}" onclick="openNote(event, '{{classroom.name}}')">{{classroom.name}}</a></li>
+  <li><a href="#Tabn" class="tablinks" onclick="openNote(event, '{{classroom.name}}')">{{classroom.name}}</a></li>
 {% endfor %}
 </ul>
+<! 學生學習筆記 ->
+<div id="MyNote" class="tabcontent" style="display: block;">
+  <a href="javascript:note_add('MyNote', 0,'{{lesson}}', 0)"><img src="/static/images/icon_note.png"> 新增學習筆記</a><br><BR>
+        <div class=MyNote_note>
+        {% for note in notes %}{% spaceless %}
+            {% if note.classroom_id == 0 %}
+                <div class="note_item">
+                    <div class="note_date">{{note.publication_date|date:"DATE_FORMAT"}}<a href="javascript:note_add('MyNote', 0,{{lesson}}, {{note.id}})"><img src="/static/images/icon_edit.png"> 編輯筆記</a></div>
+                    <div class="note_content_{{note.id}}">{{ note.memo|safe }}</div>
+                </div>
+            {% endif %}
+        {% endspaceless %}{% endfor %}
+        </div>
+</div>        
+<div id=MyNote_form class="tabcontent">
+    <table>
+        <tr><th><label for="id_memo">筆記內容:</label></th><td><textarea cols="50" id="id_MyNote_memo" rows="20"></textarea></td></tr>
+        <tr><td></td><td><input data-noteid=0 data-userid="{{request.user.id}}" data-classroomname="MyNote" data-classroomid="0" data-lesson="{{lesson}}" class="note_submit" type="submit" value="送出"></td></tr>
+    </table>
+</div>
+<!  教師教學筆記  ->
 {% for classroom in classrooms %}
-<div id={{classroom.name}} class="tabcontent" {% if forloop.counter == 1 %}style="display: block;"{% else %}style="display: none;"{% endif %}>
-  <a href="javascript:note_add('{{classroom.name}}', {{classroom.id}},{{lesson}}, 0)"><img src="/static/images/icon_note.png"> 新增筆記</a><br><BR>
+<div id={{classroom.name}} class="tabcontent" style="display: none;">
+  <a href="javascript:note_add('{{classroom.name}}', {{classroom.id}},'{{lesson}}', 0)"><img src="/static/images/icon_note.png"> 新增教學筆記</a><br><BR>
         <div class={{classroom.name}}_note>
         {% for note in notes %}{% spaceless %}
             {% if note.classroom_id == classroom.id %}
                 <div class="note_item">
-                    <div class="note_date">{{note.publication_date}}<a href="javascript:note_add('{{classroom.name}}', {{classroom.id}},{{lesson}}, {{note.id}})"><img src="/static/images/icon_edit.png"> 編輯筆記</a></div>
+                    <div class="note_date">{{note.publication_date|date:"DATE_FORMAT"}}<a href="javascript:note_add('{{classroom.name}}', {{classroom.id}},{{lesson}}, {{note.id}})"><img src="/static/images/icon_edit.png"> 編輯筆記</a></div>
                     <div class="note_content_{{note.id}}">{{ note.memo|safe }}</div>
                 </div>
             {% endif %}
@@ -1802,7 +1822,7 @@ function onPlayerStateChange(event) {
         console.log('classroomname = '+classroomname);
         CKEDITOR.instances['id_'+classroomname+'_memo'].updateElement();
 		var memo = document.getElementById("id_" + classroomname+ "_memo").value;
-		$.post('/teacher/note/add/',
+		$.post('/account/note/add/',
 			{
 				'classroomid' : classroomid,
 				'lesson' : lesson,
@@ -1811,7 +1831,7 @@ function onPlayerStateChange(event) {
 				'noteid': noteid,
 			},
 			function(data){			
-                $.post('/teacher/note/get/',
+                $.post('/account/note/get/',
                     {
                         'classroomid' : classroomid,
                         'lesson' : lesson,

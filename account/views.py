@@ -6,7 +6,7 @@ from django.template import RequestContext
 from django.contrib.auth import authenticate, login
 from forms import LoginForm, UserRegistrationForm, PasswordForm, RealnameForm, LineForm, SchoolForm, EmailForm
 from django.contrib.auth.models import User
-from account.models import Profile, PointHistory, Log, Message, MessagePoll, Visitor, VisitorLog
+from account.models import Profile, PointHistory, Log, Message, MessagePoll, Visitor, VisitorLog, Note
 from student.models import Enroll, Work, Assistant
 from teacher.models import Classroom
 from certificate.models import Certificate
@@ -70,8 +70,7 @@ def homepage(request):
         admin_user = User.objects.get(id=1)
         admin_profile = Profile.objects.get(user=admin_user)
     except ObjectDoesNotExist:
-        admin_profile = Profile(user=admin_user)
-        admin_profile.save()
+        admin_profile = ""
     return render_to_response('homepage.html', {'row_count':row_count, 'user_count':len(users), 'admin_profile': admin_profile}, context_instance=RequestContext(request))
 
 # 使用者登入功能
@@ -739,3 +738,50 @@ class EventAdminClassroomListView(ListView):
         if not self.request.user.id == 1:
             return redirect('/')
         return super(EventAdminClassroomListView, self).render_to_response(context)     
+        
+# 新增教學筆記
+def note_add(request):
+    classroom_id = request.POST.get('classroomid')
+    lesson = request.POST.get('lesson')
+    memo = request.POST.get('memo')
+    user_id = request.POST.get('userid')
+    note_id = request.POST.get('noteid')
+    if note_id == 0 or note_id == "0" :
+        note = Note(classroom_id=classroom_id, user_id=user_id, lesson=lesson, memo=memo)
+        note.save()	
+        if is_event_open(request) :       
+            log = Log(user_id=request.user.id, event=u'新增教學筆記')
+            log.save()        
+    else : 
+        try: 
+            note = Note.objects.get(id=note_id)
+            note.memo = memo
+            note.save()
+            if is_event_open(request) :       
+                log = Log(user_id=request.user.id, event=u'編輯教學筆記')
+                log.save()    
+        except:
+            pass
+    return JsonResponse({'status':'ok', 'note_id':note_id}, safe=False)
+
+# 新增教學筆記
+def note_get(request):
+    classroom_id = request.POST.get('classroomid')
+    lesson = request.POST.get('lesson')
+    user_id = request.POST.get('userid')
+    note_text = ""
+    if not classroom_id == "0" :
+        classroom_name = Classroom.objects.get(id=classroom_id).name
+    else :
+        classroom_name = "MyNote"
+    notes = Note.objects.filter(classroom_id=classroom_id, user_id=user_id, lesson=lesson).order_by('-id')
+    if notes.exists():
+        for note in notes:
+            note_text = note_text + str(localtime(note.publication_date).strftime("%Y-%m-%d %H:%M:%S"))
+            note_text = note_text + " <a href=javascript:note_add('" + classroom_name + "'," + str(classroom_id) + ",'" + str(lesson) + "'," + str(note.id) + u")><img src='/static/images/icon_edit.png'>編輯筆記</a>" 
+            note_text = note_text + "<div class=note_content_" + str(note.id) + ">" + note.memo + "</div>"
+        return JsonResponse({'status':'ok', 'note_text':note_text, 'classroom_id':classroom_id}, safe=False)
+    else :
+        notes = None
+        return JsonResponse({'status':'no_ok', 'note_text':note_text}, safe=False)
+                

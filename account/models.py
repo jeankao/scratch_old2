@@ -103,3 +103,15 @@ class VisitorLog(models.Model):
     user_id = models.IntegerField(default=0)
     IP = models.CharField(max_length=20, default="")
     time = models.DateTimeField(auto_now_add=True)
+    
+class Note(models.Model):
+    user_id = models.IntegerField(default=0) 
+    classroom_id = models.IntegerField(default=0)
+    lesson = models.CharField(max_length=5)
+    memo = models.TextField()
+    publication_date = models.DateTimeField(default=timezone.now)
+ 
+    def __unicode__(self):
+        user = User.objects.get(id=self.user_id)
+        classroom_id = self.classroom_id
+        return user.first_name+"("+str(classroom_id)+")<"+self.lesson+'>'

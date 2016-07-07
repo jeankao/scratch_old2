@@ -10,9 +10,9 @@ from django.template import RequestContext
 from django.views.generic import ListView, CreateView
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import Group
-from teacher.models import Classroom, Note
+from teacher.models import Classroom
 from student.models import Enroll, EnrollGroup, Work, Assistant, Exam, Bug, Debug
-from account.models import Log, Message, MessagePoll, Profile, VisitorLog
+from account.models import Log, Message, MessagePoll, Profile, VisitorLog, Note
 from certificate.models import Certificate
 from student.forms import EnrollForm, GroupForm, SubmitForm, SeatForm, BugForm, DebugForm, DebugValueForm, GroupSizeForm
 from django.utils import timezone
@@ -21,6 +21,8 @@ from account.avatar import *
 #from django.db import IntegrityError
 from account.models import Profile, PointHistory
 from django.http import JsonResponse
+from docx import *
+from docx.shared import Inches
 
 # 判斷是否為授課教師
 def is_teacher(user, classroom_id):
@@ -210,7 +212,7 @@ def classroom_enroll(request, classroom_id):
                                 enroll = Enroll(classroom_id=classroom_id, student_id=request.user.id, seat=form.cleaned_data['seat'])
                                 enroll.save()
                                 # 記錄系統事件 
-                                if is_event_open() :  
+                                if is_event_open(request) :  
                                     log = Log(user_id=request.user.id, event=u'加入班級<'+classroom.name+'>')
                                     log.save()                                 
                         else:
@@ -816,3 +818,27 @@ class LoginLogListView(ListView):
         else :
             context['page'] = 0
         return context        
+        
+# 積分排行榜
+class NoteListView(ListView):
+    context_object_name = 'notes'
+    paginate_by = 20
+    template_name = 'student/note.html'
+    
+    def get_queryset(self):
+        notes = Note.objects.filter(user_id=self.request.user.id, classroom_id=0).order_by("-id")
+        # 記錄系統事件
+        if is_event_open(self.request) :          
+            log = Log(user_id=self.request.user.id, event=u'查看學習筆記')
+            log.save()          
+        return notes
+        
+    def get_context_data(self, **kwargs):
+        context = super(NoteListView, self).get_context_data(**kwargs)
+        if self.request.GET.get('page') :
+            context['page'] = int(self.request.GET.get('page')) * 20 - 20
+        else :
+            context['page'] = 0
+        return context   
+    
+    
