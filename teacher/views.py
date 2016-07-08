@@ -18,15 +18,18 @@ from .forms import ClassroomForm, ScoreForm,  CheckForm1, CheckForm2, CheckForm3
 #from django.views.generic.edit import ModelFormMixin
 #from django.http import HttpResponseRedirect
 import StringIO
+from datetime import datetime
 import xlsxwriter
 from student.lesson import *
 from account.avatar import *
+from student.html2text import *
 from account.models import Profile, PointHistory
 from django.utils import timezone
 from django.http import JsonResponse
 from django.utils.timezone import localtime
-from datetime import datetime
 from django.utils import timezone
+from docx import *
+from docx.shared import Inches
 #from django.contrib.auth.decorators import login_required, user_passes_test
 
 # 判斷是否為授課教師
@@ -1051,3 +1054,48 @@ class NoteListView(ListView):
         if not is_teacher(self.request.user, self.kwargs['classroom_id']):
             return redirect('/')
         return super(NoteListView, self).render_to_response(context)        
+        
+# 教學筆記匯出到word    
+def doc_download(request, classroom_id):
+    classroom = Classroom.objects.get(id=classroom_id)
+    
+    # 記錄系統事件
+    if is_event_open(request) :       
+        log = Log(user_id=request.user.id, event=u'下載教學筆記<'+classroom.name+u'>到Word')
+        log.save()  
+        
+    document = Document()
+    docx_title="Note-"+ classroom.name.encode("utf-8") + "-"+ str(timezone.localtime(timezone.now()).date())+".docx"
+
+    notes = Note.objects.filter(user_id=request.user.id, classroom_id=classroom_id).order_by("-id")
+    document.add_paragraph(request.user.first_name + u'的教學筆記')
+    document.add_paragraph(u"班級：" + classroom.name)
+    table = document.add_table(rows=1, cols=3)
+    table.style = 'TableGrid'    
+    hdr_cells = table.rows[0].cells
+    hdr_cells[0].text = u'課別'
+    hdr_cells[1].text = u'日期'
+    hdr_cells[2].text = u'內容'
+    for note in notes:
+        row_cells = table.add_row().cells
+        row_cells[0].text = note.lesson
+        row_cells[1].text = str(timezone.localtime(note.publication_date).strftime("%b %d %Y %H:%M:%S"))
+        h = HTML2Text()
+        h.ignore_links = True
+        row_cells[2].text = h.handle(note.memo)
+
+    # Prepare document for download        
+    # -----------------------------
+    f = StringIO.StringIO()
+    document.save(f)
+    length = f.tell()
+    f.seek(0)
+    response = HttpResponse(
+        f.getvalue(),
+        content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    )
+    response['Content-Disposition'] = 'attachment; filename=' + docx_title
+    response['Content-Length'] = length
+
+
+    return response

@@ -2,7 +2,7 @@
 #from django.shortcuts import render
 from django.shortcuts import render_to_response, redirect
 from django.contrib.auth.models import User
-#from django.http import HttpResponse
+from django.http import HttpResponse
 #from django.contrib.auth import authenticate, login
 from django.template import RequestContext
 #from django.contrib.auth.decorators import login_required
@@ -18,11 +18,15 @@ from student.forms import EnrollForm, GroupForm, SubmitForm, SeatForm, BugForm, 
 from django.utils import timezone
 from student.lesson import *
 from account.avatar import *
+from student.html2text import *
 #from django.db import IntegrityError
 from account.models import Profile, PointHistory
 from django.http import JsonResponse
 from docx import *
 from docx.shared import Inches
+import StringIO
+from datetime import datetime
+
 
 # 判斷是否為授課教師
 def is_teacher(user, classroom_id):
@@ -841,4 +845,45 @@ class NoteListView(ListView):
             context['page'] = 0
         return context   
     
+# 學習筆記匯出到word    
+def doc_download(request):
     
+    # 記錄系統事件
+    if is_event_open(request) :       
+        log = Log(user_id=request.user.id, event=u'下載學習筆記到Word')
+        log.save()  
+
+    document = Document()
+    docx_title="Note-"+str(timezone.localtime(timezone.now()).date())+".docx"
+
+    notes = Note.objects.filter(user_id=request.user.id, classroom_id=0).order_by("-id")
+    paragraph = document.add_paragraph(request.user.first_name + u'的學習筆記')
+    table = document.add_table(rows=1, cols=3)
+    table.style = 'TableGrid'    
+    hdr_cells = table.rows[0].cells
+    hdr_cells[0].text = u'課別'
+    hdr_cells[1].text = u'日期'
+    hdr_cells[2].text = u'內容'
+    for note in notes:
+        row_cells = table.add_row().cells
+        row_cells[0].text = note.lesson
+        row_cells[1].text = str(timezone.localtime(note.publication_date).strftime("%b %d %Y %H:%M:%S"))
+        h = HTML2Text()
+        h.ignore_links = True
+        row_cells[2].text = h.handle(note.memo)
+
+    # Prepare document for download        
+    # -----------------------------
+    f = StringIO.StringIO()
+    document.save(f)
+    length = f.tell()
+    f.seek(0)
+    response = HttpResponse(
+        f.getvalue(),
+        content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    )
+    response['Content-Disposition'] = 'attachment; filename=' + docx_title
+    response['Content-Length'] = length
+
+
+    return response

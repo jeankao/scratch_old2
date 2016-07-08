@@ -51,5 +51,6 @@ urlpatterns = [
     
     
     #教學筆記
-    url(r'^note/(?P<classroom_id>\d+)/$', views.NoteListView.as_view()),	
+    url(r'^note/(?P<classroom_id>\d+)/$', views.NoteListView.as_view()),
+	url(r'^note/doc/(?P<classroom_id>\d+)/$', views.doc_download),     
 ]

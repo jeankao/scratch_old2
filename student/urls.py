@@ -60,5 +60,6 @@ urlpatterns = [
 	
 	#學習筆記
 	url(r'^note/$', views.NoteListView.as_view(), name='note'), 
+	url(r'^note/doc/$', views.doc_download), 
 		
 ]

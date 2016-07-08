@@ -3,6 +3,9 @@
 {% block title %} Teachers {% endblock %}
 {% block content %}
 <h1>{{request.user.first_name}}的學習筆記</h1>
+<a href="/student/note/doc"><img src="/static/images/icon_word.png">匯出Word檔</a>
+<BR>
+<BR>
 <table>
 <tr><td>課別</td><td>日期</td><td>內容</td></tr>
 {% for note in notes %}
