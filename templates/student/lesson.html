@@ -81,8 +81,23 @@ article {
 <script src='//assets.codepen.io/assets/common/stopExecutionOnTimeout.js?t=1'></script>
 <script type="text/javascript" src="//cdn.ckeditor.com/4.5.9/standard-all/ckeditor.js"></script>
 <!-- <script src='/static/js/youtube.util.js'></script> -->
-<script>
+<script  charset="utf8">
 
+CKEDITOR.plugins.add('dreamerpasteimage', {
+    init: function(editor) {
+        editor.on('paste', function(e) {
+            var reader = new FileReader();
+            reader.onload = function(evt) {
+                var img = CKEDITOR.dom.element.createFromHtml("<img src='"+evt.target.result+"' />");
+                e.editor.insertElement(img);
+            }
+            e.data.dataTransfer._.files.forEach(function(file, index) {
+                console.log('paste: '+index);
+                reader.readAsDataURL(file);
+            });
+        });
+    },
+});
 
 function openNote(evt, noteName) {
     // Declare all variables
@@ -118,8 +133,8 @@ function note_add(noteName, classroom_id, lesson, note_id) {
 	var editor = CKEDITOR.instances[memo];
     if (editor) { editor.destroy(true); }
     CKEDITOR.replace(memo, {
-        extraPlugins: 'colorbutton,colordialog'
-    } );	
+        extraPlugins: 'colorbutton,colordialog,dreamerpasteimage',
+    } );
     document.getElementById(noteName).style.display = "none";
     document.getElementById(noteName+'_form').style.display = "block";
 }
@@ -153,8 +168,10 @@ $(function () {
     lesson_log($(defaultTab).find('a').text());
     $('ul.tabs li').on('click', function () {
         if (activePlayer) {
+            if (activePlayer.getPlayerState()==1) {
             activePlayer.pauseVideo();
             activePlayer = null;
+            }
         }
         $('ul.tabs li').removeClass('active');
         $(this).addClass('active');
@@ -166,8 +183,10 @@ $(function () {
     });
     $(window).on('beforeunload', function(){
         if (activePlayer) {
+            if (activePlayer.getPlayerState()==1) {
             var currTime = secToTime(activePlayer.getCurrentTime().toFixed());
             lesson_log(activePlayer.tabName+" | PAUSE["+currTime+"]");
+            }
         }
     });
 

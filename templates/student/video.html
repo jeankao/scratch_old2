@@ -1,0 +1,223 @@
+﻿{% extends "base.html" %}
+{% block title %} Exam {% endblock %}
+{% load tag %}
+{% block head_ext %}
+<style class="cp-pen-styles">
+/* Style the list */
+ul.classtab {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid #ccc;
+    background-color: #f1f1f1;
+}
+
+/* Float the list items side by side */
+ul.classtab li {float: left;}
+
+/* Style the links inside the list items */
+ul.classtab li a {
+    display: inline-block;
+    color: black;
+    text-align: center;
+    padding: 12px 14px;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+/* Change background color of links on hover */
+ul.classtab li a:hover {background-color: #ddd;}
+
+/* Create an active/current tablink class */
+ul.classtab li a:focus, .active {background-color: #ccc;}
+
+/* Style the tab content */
+.tabcontent {
+    display: none;
+    padding: 6px 12px;
+    border: 1px solid #ccc;
+    border-top: none;
+}
+
+.wrapper {
+  margin: auto;
+  padding: 1em;
+  width: 900px;
+}
+ul.tabs {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+ul.tabs li {
+  border: gray solid 1px;
+  border-bottom: none;
+  float: left;
+  margin: 0 .25em 0 0;
+  padding: .25em .5em;
+}
+ul.tabs li a {
+  color: gray;
+  font-weight: bold;
+  text-decoration: none;
+}
+ul.tabs li.active {
+  background: gray;
+}
+ul.tabs li.active a {
+  color: white;
+}
+.clr {
+  clear: both;
+}
+.block article {
+    display: none;
+}
+article {
+  border-top: gray solid 1px;
+  padding: 0 1em;
+}</style>
+<script  charset="utf8">
+
+function lesson_log(tabname) {
+    $.post('/student/lesson/log/{{lesson}}/',
+        {'tabname': tabname},
+        function(data){}
+    );
+}
+
+
+var playerPool = [];
+var tabName = [];
+var activePlayer = null;
+$(function () {
+    $(document).scrollTop(0);
+    $('.block article').hide();
+    var defaultTab = $('ul.tabs li:first');
+    var defaultArticle = $('.block article:first');
+    var searchTab = (location.hash && $(location.hash));
+    $('ul.tabs li a').each(function(index, element){
+        tabName[$(element).attr('href').substr(1)] = $(element).text();
+        if(searchTab && $(element).attr('href') === location.hash) {
+            defaultTab = $(element).parent();
+            defaultArticle = $(location.hash);
+        }
+    });
+    $(defaultTab).addClass('active');
+    $(defaultArticle).show();
+    //lesson_log($(defaultTab).find('a').text());
+    $('ul.tabs li').on('click', function () {
+        if (activePlayer) {
+            if (activePlayer.getPlayerState()==1) {
+            activePlayer.pauseVideo();
+            activePlayer = null;
+            }
+        }
+        $('ul.tabs li').removeClass('active');
+        $(this).addClass('active');
+        $('.block article').hide();
+        var activeTab = $(this).find('a');
+        $(activeTab.attr('href')).show();
+        //lesson_log(activeTab.text());
+        return false;
+    });
+    var defaultClassTab = $('ul.classtab li:first');
+    var defaultClassArticle = $('.block article:first');    
+    $('ul.classtab li a').each(function(index, element){
+        tabName[$(element).attr('href').substr(1)] = $(element).text();
+        if(searchTab && $(element).attr('href') === location.hash) {
+            defaultClassTab = $(element).parent();
+            defaultClassArticle = $(location.hash);
+        }
+    });
+    $(defaultClassTab).addClass('active');
+    $(defaultClassArticle).show();
+    //lesson_log($(defaultTab).find('a').text());
+    $('ul.classtab li').on('click', function () {
+        if (activePlayer) {
+            if (activePlayer.getPlayerState()==1) {
+            activePlayer.pauseVideo();
+            activePlayer = null;
+            }
+        }
+        $('ul.classtab li').removeClass('active');
+        $(this).addClass('active');
+        $('.block article').hide();
+        var activeTab = $(this).find('a');
+        $(activeTab.attr('href')).show();
+        //lesson_log(activeTab.text());
+        return false;
+    });    
+    //------------------------------------------------------------------------
+    // Load YouTube API library
+    var tag = document.createElement('script');
+    tag.id = 'iframe-demo';
+    tag.src = 'https://www.youtube.com/iframe_api';
+    var firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+});
+function onYouTubeIframeAPIReady() {
+    $('ul.tabs li a').each(function(index, element){
+        tabName[$(element).attr('href').substr(1)] = $(element).text();
+    });    
+    $('iframe[src*="www.youtube.com"]').each(function(index,element){
+        var playerID = $(element).parent().attr('id')+'_player';
+        $(element).attr('id', playerID);
+        player = new YT.Player(playerID, {
+            events: {
+                'onStateChange': onPlayerStateChange
+            }
+        });
+        player.tabName = tabName[$(element).parent().attr('id')];
+        playerPool[playerID] = player;
+    });
+}
+function secToTime(sec) {
+    return (new Date(sec*1000)).toUTCString().split(' ')[4];
+}
+
+</script>
+{% endblock %}
+{% block content %}
+<section class="wrapper">
+<ul class="tabs">
+{% for i in 11|return_range %}
+        <li><a href="#tab{{i}}">第{{i|add:1}}堂課</a></li>        
+{% endfor %}
+</ul>
+<div class="clr"></div>
+<section class="block">
+{% for i in 11|return_range %}
+<article id="tab{{i}}">
+<ul class="classtab">
+{% for key, value in video_url.items  %}
+  {% if key.0 == i|add:1|stringformat:"i" %}
+  <li><a href="#{{key.1}}" class="tablinks">{{key.1}}</a></li>
+  {% endif %}
+{% endfor %}
+</ul>
+{% for key, value in videos.items %}
+<BR>
+<div id="{{key.1}}" class="tabcontent" style="display: block;">
+{% if key.0 == i|add:1|stringformat:'i' %}
+    {% for item in value %}
+    {% if forloop.counter == 1 %}
+        <iframe width="900" height="520" src="https://www.youtube.com/embed/{{item}}?autoplay=0&autostart=0&enablejsapi=1" frameborder="0" allowfullscreen></iframe>
+    {% else %}
+    <BR>{{item}}
+    {% endif %}
+    {% endfor %}
+{% endif %}
+</div>
+{% endfor %}
+</article>
+{% endfor %}
+</section>
+
+
+
+</div>    
+</sction>
+
+{% endblock %}

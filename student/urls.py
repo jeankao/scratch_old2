@@ -2,7 +2,7 @@
 from django.conf.urls import url
 from django.contrib.auth.decorators import login_required
 from . import views
-from student.views import RankListView, BugListClassView, BugCreateView
+from student.views import RankListView, BugListClassView, BugCreateView, VideoListView
 
 urlpatterns = [
     # 作業進度查詢
@@ -61,5 +61,8 @@ urlpatterns = [
 	#學習筆記
 	url(r'^note/$', views.NoteListView.as_view(), name='note'), 
 	url(r'^note/doc/$', views.doc_download), 
+	
+	# 影片
+	url(r'^video/$', VideoListView.as_view()), 
 		
 ]

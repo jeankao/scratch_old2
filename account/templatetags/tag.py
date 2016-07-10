@@ -100,6 +100,10 @@ def is_classmate(user_id, request):
 @register.filter(name='td_range')
 def td_range(num, val):
     return range(val - (num % val))
+    
+@register.filter(name='return_range')
+def return_range(num):
+    return range(num)
 
 @register.filter(name='event')
 def event(user):

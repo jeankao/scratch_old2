@@ -17,16 +17,19 @@ from certificate.models import Certificate
 from student.forms import EnrollForm, GroupForm, SubmitForm, SeatForm, BugForm, DebugForm, DebugValueForm, GroupSizeForm
 from django.utils import timezone
 from student.lesson import *
+from student.video import *
 from account.avatar import *
 from student.html2text import *
-#from django.db import IntegrityError
 from account.models import Profile, PointHistory
 from django.http import JsonResponse
 from docx import *
 from docx.shared import Inches
 import StringIO
 from datetime import datetime
-
+from django.db.models import Q
+from django.utils.timezone import localtime
+import string
+import base64
 
 # 判斷是否為授課教師
 def is_teacher(user, classroom_id):
@@ -870,7 +873,26 @@ def doc_download(request):
         row_cells[1].text = str(timezone.localtime(note.publication_date).strftime("%b %d %Y %H:%M:%S"))
         h = HTML2Text()
         h.ignore_links = True
-        row_cells[2].text = h.handle(note.memo)
+        h.ignore_images = False
+
+        text  = h.handle(note.memo)
+        paragraph_number = 0
+        while text.find("##[") != -1 :
+            paragraph_number = paragraph_number + 1
+            start = text.find("##[")
+            row_cells[2].add_paragraph(text[:start])            
+            end = text.find("]##")
+            image_text = text[start:end+3]
+            image = text[start+25:end]
+            paragraph = row_cells[2].paragraphs[paragraph_number]
+            run = paragraph.add_run()
+            fh = open("imageToSave.png", "wb")
+            fh.write(image.decode('base64'))
+            fh.close()
+            run.add_picture("imageToSave.png")
+            text = string.replace(text, text[:start], "", 1)
+            text = string.replace(text, image_text, "", 1)
+        row_cells[2].add_paragraph(text)
 
     # Prepare document for download        
     # -----------------------------
@@ -887,3 +909,51 @@ def doc_download(request):
 
 
     return response
+
+# 影片
+class VideoListView(ListView):
+    context_object_name = 'videos'
+    template_name = 'student/video.html'
+    
+    def get_queryset(self):
+        list = ['PLAY','PAUSE','STOP']
+        events = Log.objects.filter(Q(user_id=1), reduce(lambda x, y: x | y, [Q(event__contains=word) for word in list])).order_by("id")
+        
+        searching = False
+        start_time = ""
+        videos = {}
+        
+        for event in events:
+            video = event.event.split("|")
+            lesson = video[0][video[0].find("<")+1:video[0].find(">")].encode("utf-8")
+            action = video[2][1:video[2].find("[")]            
+            tabName = video[1][1:-1].encode("utf-8")
+            time = video[2][video[2].find("[")+1:video[2].find("]")]
+            if not searching and action == "PLAY" :
+                start_time = time
+                searching = True
+            if searching and action == "PAUSE" :
+                if (lesson, tabName) in video_url :
+                    if (lesson, tabName) in videos :
+                        videos[lesson, tabName].append(str(localtime(event.publish))+"--"+start_time+"--"+time)
+                    else :
+                        videos[lesson, tabName] = [video_url[lesson, tabName]]
+                        videos[lesson, tabName].append(str(localtime(event.publish))+"--"+start_time+"--"+time)
+                    start_time = ""
+                    searching = False
+        # 記錄系統事件
+        if is_event_open(self.request) :          
+            log = Log(user_id=self.request.user.id, event=u'查看影片記錄')
+            log.save()          
+        return videos
+        
+    def get_context_data(self, **kwargs):
+        context = super(VideoListView, self).get_context_data(**kwargs)
+        context['video_url'] = video_url
+        if self.request.GET.get('page') :
+            context['page'] = int(self.request.GET.get('page')) * 20 - 20
+        else :
+            context['page'] = 0
+        return context  
+    
+    

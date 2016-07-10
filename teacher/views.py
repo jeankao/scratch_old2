@@ -381,7 +381,7 @@ def work_group(request, lesson, classroom_id):
             student_groups.append([group, works, group_assistants])
         lesson_data = lesson_list[int(lesson)-1]		
         # 記錄系統事件
-        if is_event_open(rrequest) :            
+        if is_event_open(request) :            
             log = Log(user_id=request.user.id, event=u'以分組顯示作業<'+lesson+'><'+classroom_name+'>')
             log.save()         
         return render_to_response('teacher/work_group.html', {'lesson':lesson, 'lesson_data':lesson_data, 'student_groups':student_groups, 'classroom_id':classroom_id, 'student_group':student_group}, context_instance=RequestContext(request))
