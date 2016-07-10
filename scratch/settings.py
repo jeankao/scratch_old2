@@ -138,9 +138,6 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"), 
 ]
 
-# Static asset configuration.
-#STATIC_ROOT = 'static'
-
 import os
 if os.getenv('DATABASE_URL') is not None:
     import dj_database_url

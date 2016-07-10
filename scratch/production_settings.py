@@ -22,3 +22,6 @@ ALLOWED_HOSTS = ['*']
 DEBUG = True
 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+# Static asset configuration.
+STATIC_ROOT = 'static'
