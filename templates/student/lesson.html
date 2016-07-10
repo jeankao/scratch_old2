@@ -165,6 +165,22 @@ $(function () {
     });
     $(defaultTab).addClass('active');
     $(defaultArticle).show();
+	$.post('/account/video/log/',
+    	{
+  	    	'tabName' : defaultTab.text(),
+        	'lesson' : {{lesson}},
+   	    },
+   	    function(data){	
+   	        var logs = data['text'].split("##");
+   	        var video = document.getElementById("videolog")
+   	        video.innerHTML = ""   	        
+    	    function myFunction(item, index) {
+                video.innerHTML = video.innerHTML + item + "<br />"; 
+            }
+   	        logs.forEach(myFunction);
+        }
+    );
+    
     lesson_log($(defaultTab).find('a').text());
     $('ul.tabs li').on('click', function () {
         if (activePlayer) {
@@ -173,10 +189,30 @@ $(function () {
             activePlayer = null;
             }
         }
+        var activeTab = $(this).find('a');        
+   	    var video = document.getElementById("videolog")        
+        if (activeTab.text().startsWith("影片")) {
+    		$.post('/account/video/log/',
+	        	{
+		  	    	'tabName' : activeTab.text(),
+		        	'lesson' : {{lesson}},
+		   	    },
+		   	    function(data){	
+   	                var logs = data['text'].split("##");
+ 		   	        video.innerHTML = ""  	                
+    	            function myFunction(item, index) {
+                        video.innerHTML = video.innerHTML + item + "<br />"; 
+                    }
+   	                logs.forEach(myFunction);
+                }
+            );
+            video.style.display = "block";
+        } else {
+            video.style.display = "none";
+        }
         $('ul.tabs li').removeClass('active');
         $(this).addClass('active');
         $('.block article').hide();
-        var activeTab = $(this).find('a');
         $(activeTab.attr('href')).show();
         lesson_log(activeTab.text());
         return false;
@@ -1824,6 +1860,7 @@ function onPlayerStateChange(event) {
 </div>
 {% endfor %}
 </article> 
+<div id=videolog></div>
 </section>
 </section> 
 {% endblock %}

@@ -27,6 +27,7 @@ from django.utils.timezone import localtime
 from datetime import datetime
 from django.utils import timezone
 from django.apps import apps
+import urllib
 
 # 判斷是否開啟事件記錄
 def is_event_open(request):
@@ -790,3 +791,25 @@ def note_get(request):
         notes = None
         return JsonResponse({'status':'no_ok', 'note_text':note_text}, safe=False)
                 
+# 影片記錄
+def videolog(request):
+    tabName = request.POST.get('tabName')
+    lesson = request.POST.get('lesson')
+    logs = Log.objects.filter(user_id=request.user.id, event__startswith=u"查看課程內容<"+lesson+"> | "+tabName+" |").order_by('id')
+    text = ""
+    searching = False    
+    for log in logs:
+        video = log.event.split("|")
+        action = video[2][1:video[2].find("[")]            
+        time = video[2][video[2].find("[")+1:video[2].find("]")]
+        if not searching and action == "PLAY" :
+            start_time = time
+            start_log_time = log.publish
+            searching = True
+        if searching and action == "PAUSE" :
+            text = text + str(localtime(start_log_time).strftime("%Y-%m-%d %H:%M:%S"))+"--["+start_time+"]--"+str(localtime(log.publish).strftime("%Y-%m-%d %H:%M:%S"))+"--["+time+ "]##"
+            start_time = ""
+            searching = False
+    return JsonResponse({'status':'ok', 'text':text}, safe=False)
+                
+            

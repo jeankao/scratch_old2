@@ -63,4 +63,7 @@ urlpatterns = [
     #筆記
     url(r'^note/add/$', views.note_add),  
     url(r'^note/get/$', views.note_get),  
+    
+    #影片
+    url(r'^video/log/$', views.videolog),    
 ]
