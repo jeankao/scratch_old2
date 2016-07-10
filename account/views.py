@@ -86,6 +86,11 @@ def user_login(request):
                         if user is not None:
                                 if user.is_active:
                                         if user.id == 1:
+                                            try:
+                                                admin_profile = Profile.objects.get(user=user)
+                                            except ObjectDoesNotExist:
+                                                admin_profile = Profile(user=user)
+                                                admin_profile.save()
                                             if user.first_name == "": 
                                                 user.first_name = "管理員"
                                                 user.save()
