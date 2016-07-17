@@ -263,7 +263,7 @@ def score_peer(request, index, classroom_id, group):
     try:
         assistant = Assistant.objects.get(lesson=index, classroom_id=classroom_id, student_id=request.user.id)
     except ObjectDoesNotExist:
-        return redirect("/student/group/work/"+classroom_id+"/"+index)
+        return redirect("/student/group/work/"+index+"/"+classroom_id)
 
     enrolls = Enroll.objects.filter(classroom_id=classroom_id, group=group)
     lesson = ""
@@ -438,7 +438,7 @@ def check(request, user_id, unit,classroom_id):
                 enroll.save()
                 
                 # 記錄系統事件
-                if is_event_open() :                    
+                if is_event_open(request) :                    
                     log = Log(user_id=request.user.id, event=u'批改12堂課心得<'+user_name+'>')
                     log.save()                  
 						

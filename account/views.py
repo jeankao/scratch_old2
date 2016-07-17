@@ -56,8 +56,8 @@ def is_student(user_id, request):
     return False
     
 # 判斷是否為本班同學
-def is_classmate(user, classroom_id):
-    return Enroll.objects.filter(student_id=user.id, classroom_id=classroom_id).exists()
+def is_classmate(user_id, classroom_id):
+    return Enroll.objects.filter(student_id=user_id, classroom_id=classroom_id).exists()
 
 
 # 網站首頁
@@ -242,11 +242,10 @@ def profile(request, user_id):
     #檢查是否為教師或同班同學
     user_enrolls = Enroll.objects.filter(student_id=request.user.id)
     for enroll in user_enrolls:
-        user = User.objects.get(id=user_id)
-        if not is_classmate(user, enroll.classroom_id) and not request.user.id == 1:
-            return redirect("/")
-    return render_to_response('account/profile.html',{'hour_of_code':hour_of_code, 'works':works, 'lesson_list':lesson_list, 'enrolls':enrolls, 'profile': profile,'user_id':user_id, 'credit':credit}, context_instance=RequestContext(request))	
-
+        if is_classmate(user_id, enroll.classroom_id) or request.user.id == 1:
+          return render_to_response('account/profile.html',{'hour_of_code':hour_of_code, 'works':works, 'lesson_list':lesson_list, 'enrolls':enrolls, 'profile': profile,'user_id':user_id, 'credit':credit}, context_instance=RequestContext(request))	
+    return redirect("/")
+    
 # 修改密碼
 def password(request, user_id):
     if request.method == 'POST':
@@ -470,7 +469,7 @@ class LineClassListView(ListView):
         
     # 限本班同學
     def render_to_response(self, context):
-        if not is_classmate(self.request.user, self.kwargs['classroom_id']):
+        if not is_classmate(self.request.user.id, self.kwargs['classroom_id']):
             return redirect('/')
         return super(LineClassListView, self).render_to_response(context)            
                 
@@ -806,7 +805,7 @@ def videolog(request):
             start_time = time
             start_log_time = log.publish
             searching = True
-        if searching and action == "PAUSE" :
+        if searching and ( action == "PAUSE" or action == "STOP" ) :
             text = text + str(localtime(start_log_time).strftime("%Y-%m-%d %H:%M:%S"))+"--["+start_time+"]--"+str(localtime(log.publish).strftime("%Y-%m-%d %H:%M:%S"))+"--["+time+ "]##"
             start_time = ""
             searching = False

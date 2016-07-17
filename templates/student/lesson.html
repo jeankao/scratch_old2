@@ -146,7 +146,6 @@ function lesson_log(tabname) {
     );
 }
 
-
 var playerPool = [];
 var tabName = [];
 var activePlayer = null;
@@ -168,7 +167,7 @@ $(function () {
 	$.post('/account/video/log/',
     	{
   	    	'tabName' : defaultTab.text(),
-        	'lesson' : {{lesson}},
+        	'lesson' : "{{lesson}}",
    	    },
    	    function(data){	
    	        var logs = data['text'].split("##");
@@ -195,7 +194,7 @@ $(function () {
     		$.post('/account/video/log/',
 	        	{
 		  	    	'tabName' : activeTab.text(),
-		        	'lesson' : {{lesson}},
+		        	'lesson' : "{{lesson}}",
 		   	    },
 		   	    function(data){	
    	                var logs = data['text'].split("##");
@@ -204,6 +203,7 @@ $(function () {
                         video.innerHTML = video.innerHTML + item + "<br />"; 
                     }
    	                logs.forEach(myFunction);
+   	                alert(activePlayer.getDuration());    
                 }
             );
             video.style.display = "block";
@@ -261,6 +261,11 @@ function onYouTubeIframeAPIReady() {
         playerPool[playerID] = player;
     });
 }
+
+function onYouTubePlayerReady(playerId) {
+      alert("hello");
+}
+
 function secToTime(sec) {
     return (new Date(sec*1000)).toUTCString().split(' ')[4];
 }
@@ -321,6 +326,7 @@ function onPlayerStateChange(event) {
     <article id="tab2">
         <BR>
         <iframe width="900" height="520" src="https://www.youtube.com/embed/AImNJyXxzUA?autoplay=0&autostart=0&enablejsapi=1" frameborder="0" allowfullscreen></iframe>   
+        
     </article>
     <article id="tab3">
         <BR>

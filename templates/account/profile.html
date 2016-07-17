@@ -79,8 +79,8 @@ $(function () {
   
 <section class="wrapper">
   <h1>{{profile.user.first_name}}個人檔案</h1>
-<p>信箱：{{user.email}}</p>
-<p>學校：{{user.last_name}}</p>
+<p>信箱：{{profile.user.email}}</p>
+<p>學校：{{profile.user.last_name}}</p>
 <p>
 班級：
 {% for enroll in enrolls %}
